@@ -1,14 +1,550 @@
-:root{font-family:"Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;color:#102b46;background:#f5f8fc;scroll-behavior:smooth}*{box-sizing:border-box}body{margin:0}header{background:white;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px max(5%,calc((100% - 1150px)/2));position:sticky;top:0;z-index:2;box-shadow:0 2px 16px #122d4610}.logo{text-decoration:none;color:#102b46;font-size:22px;font-weight:900}.logo span{color:#0d9488}nav{display:flex;gap:25px}nav a{color:#36516b;text-decoration:none;font-size:14px}button,.outline{border:0;background:#0d9488;color:white;padding:14px 24px;border-radius:12px;cursor:pointer;font:inherit;font-weight:bold;text-decoration:none;display:inline-block}button:hover{background:#08776f}.small{padding:10px 15px}.outline{background:transparent;color:#102b46;border:1px solid #b6cbd6}.hero{padding:110px 8% 95px;text-align:center;background:radial-gradient(circle at 15% 15%,#d5f8f0,transparent 38%),linear-gradient(135deg,#f8fcff,#e8f2f8)}.eyebrow{display:inline-block;background:#d9f4ed;color:#08776f;padding:9px 17px;border-radius:99px;font-weight:bold;font-size:13px}.hero h1{font-size:clamp(42px,6vw,76px);line-height:1.3;margin:25px 0}.hero em{font-style:normal;color:#0d9488}.hero p{font-size:19px;line-height:2;max-width:650px;margin:0 auto 28px;color:#547086}.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.note{color:#74899a;font-size:12px;margin-top:24px}.metrics{display:flex;justify-content:center;gap:70px;background:#102b46;color:white;padding:27px;flex-wrap:wrap}.metrics div,.stats div{display:flex;flex-direction:column;text-align:center;gap:7px}.metrics strong{font-size:25px;color:#61e2d2}.metrics span{font-size:12px}section#features,section#pricing{padding:70px 7%;max-width:1200px;margin:auto}h2{font-size:clamp(26px,4vw,38px);margin:0 0 15px}.muted{color:#71899a}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:32px}.cards article,.tool,.sample{background:white;border:1px solid #e2ebf1;border-radius:20px;padding:28px;box-shadow:0 8px 28px #1539570a}.cards b{font-size:30px;color:#0d9488}.cards p,.highlight p,.tool p{color:#6e8494;line-height:1.9}.highlight{max-width:1100px;margin:35px auto;padding:45px;background:#102b46;color:white;border-radius:28px;display:grid;grid-template-columns:1.4fr 1fr;gap:30px;align-items:center}.highlight p{color:#c3d4e0}.sample{color:#102b46}.sample span{color:#0d9488;font-size:13px}.pricing{grid-template-columns:repeat(3,1fr)}.pricing strong{font-size:30px}.pricing small{font-size:13px}.featured{outline:2px solid #0d9488}footer{text-align:center;padding:32px;color:#73899a;border-top:1px solid #e1eaf0}.panelhead{display:flex;justify-content:space-between;align-items:center;background:#102b46;color:white;padding:16px 6%}.ghost{background:transparent;border:1px solid #7991a3;padding:10px}.workspace{max-width:1000px;margin:50px auto;min-height:55vh;padding:0 20px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0}.stats div{background:white;border-radius:16px;padding:25px}.stats strong{font-size:38px;color:#0d9488}.stats span{color:#6e8494}.tool{margin-top:20px}label{display:block;margin:20px 0 10px}.formrow{display:flex;gap:12px}input{font:inherit;border:1px solid #cddce5;padding:14px;border-radius:10px;flex:1;min-width:0}.courses{margin-top:20px}.course{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #e4edf1;padding:12px 0;overflow-wrap:anywhere}.course button{background:#fce8e8;color:#a52b2b;padding:8px 12px}.empty{color:#8094a2}@media(max-width:750px){header{padding:14px 4%}nav{display:none}.logo{font-size:17px}.hero{padding:75px 6%}.hero p{font-size:16px}.metrics{gap:22px}.cards{grid-template-columns:repeat(2,1fr)}.highlight{margin:20px 4%;grid-template-columns:1fr;padding:28px}.pricing{grid-template-columns:1fr}.formrow{flex-direction:column}}@media(max-width:420px){.cards{grid-template-columns:1fr}.stats{gap:8px}.stats div{padding:15px}.stats strong{font-size:28px}}
 
-/* Arabic Naskh typography */
-body{font-family:"Noto Naskh Arabic","Amiri","Traditional Arabic",serif;font-size:18px;line-height:1.7}
-button,input{font-family:inherit}
-.logo{font-family:Arial,sans-serif;letter-spacing:-.3px}
-nav a,.eyebrow,.metrics span,.note{font-size:16px}
-.hero h1{line-height:1.45}
-.cards p,.highlight p,.tool p{line-height:2}
-/* Jordan Academy: public learning sections */
-section#courses{padding:70px 7%;max-width:1200px;margin:auto}
-section#features{padding:70px 7%;max-width:1200px;margin:auto}
-/* Jordan Academy V3 course and lesson editor */
-#dashboard input,#dashboard select,#dashboard textarea{display:block;width:100%;box-sizing:border-box;margin:6px 0 14px;padding:11px 13px;border:1px solid #c8d7df;border-radius:10px;background:#fff;color:#102b46;font:inherit}#dashboard label{display:block;font-weight:600}#dashboard button,.importLabel{cursor:pointer}.editorCourse{padding:20px;border:1px solid #d9e3eb;border-radius:16px;background:#fff;margin:16px 0}.courseHeading{display:flex;justify-content:space-between;align-items:center;gap:12px}.editorCourse h3{margin:0}.formrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}.danger{background:#fff!important;color:#a52b37!important;border:1px solid #e9bdc3!important}.lessonRow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e4ebf0}.lessonForm{margin-top:20px;padding:16px;border-radius:12px;background:#f5f8fc}.lessonForm h4{margin:0 0 10px}.catalogLesson{border-top:1px solid #dde6e9;padding:12px 0}.catalogLesson p{white-space:pre-wrap}.importLabel{padding:8px;border:1px solid #bccbd5;border-radius:10px}.importLabel input{max-width:200px}#publishedCatalog:empty{display:none}
+:root {
+  font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
+  color: #102b46;
+  background: #f5f8fc;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+header {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px max(5%, calc((100% - 1150px)/2));
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 2px 16px #122d4610;
+}
+
+.logo {
+  text-decoration: none;
+  color: #102b46;
+  font-size: 22px;
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  letter-spacing: -0.3px;
+}
+
+.logo span {
+  color: #0d9488;
+}
+
+nav {
+  display: flex;
+  gap: 25px;
+}
+
+nav a {
+  color: #36516b;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+button,
+.outline {
+  border: 0;
+  background: #0d9488;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+}
+
+button:hover {
+  background: #08776f;
+}
+
+.small {
+  padding: 10px 15px;
+}
+
+.outline {
+  background: transparent;
+  color: #102b46;
+  border: 1px solid #b6cbd6;
+}
+
+.hero {
+  padding: 110px 8% 95px;
+  text-align: center;
+  background:
+    radial-gradient(circle at 15% 15%, #d5f8f0, transparent 38%),
+    linear-gradient(135deg, #f8fcff, #e8f2f8);
+}
+
+.eyebrow {
+  display: inline-block;
+  background: #d9f4ed;
+  color: #08776f;
+  padding: 9px 17px;
+  border-radius: 99px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.hero h1 {
+  font-size: clamp(42px, 6vw, 76px);
+  line-height: 1.45;
+  margin: 25px 0;
+}
+
+.hero em {
+  font-style: normal;
+  color: #0d9488;
+}
+
+.hero p {
+  font-size: 19px;
+  line-height: 2;
+  max-width: 650px;
+  margin: 0 auto 28px;
+  color: #547086;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.note {
+  color: #74899a;
+  font-size: 16px;
+  margin-top: 24px;
+}
+
+.metrics {
+  display: flex;
+  justify-content: center;
+  gap: 70px;
+  background: #102b46;
+  color: white;
+  padding: 27px;
+  flex-wrap: wrap;
+}
+
+.metrics div,
+.stats div {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 7px;
+}
+
+.metrics strong {
+  font-size: 25px;
+  color: #61e2d2;
+}
+
+.metrics span {
+  font-size: 16px;
+}
+
+section#features,
+section#pricing,
+section#courses {
+  padding: 70px 7%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+h2 {
+  font-size: clamp(26px, 4vw, 38px);
+  margin: 0 0 15px;
+}
+
+.muted {
+  color: #71899a;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.cards article,
+.tool,
+.sample {
+  background: white;
+  border: 1px solid #e2ebf1;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 28px #1539570a;
+}
+
+.cards b {
+  font-size: 30px;
+  color: #0d9488;
+}
+
+.cards p,
+.highlight p,
+.tool p {
+  color: #6e8494;
+  line-height: 2;
+}
+
+.highlight {
+  max-width: 1100px;
+  margin: 35px auto;
+  padding: 45px;
+  background: #102b46;
+  color: white;
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.highlight p {
+  color: #c3d4e0;
+}
+
+.sample {
+  color: #102b46;
+}
+
+.sample span {
+  color: #0d9488;
+  font-size: 13px;
+}
+
+.pricing {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.pricing strong {
+  font-size: 30px;
+}
+
+.pricing small {
+  font-size: 13px;
+}
+
+.featured {
+  outline: 2px solid #0d9488;
+}
+
+footer {
+  text-align: center;
+  padding: 32px;
+  color: #73899a;
+  border-top: 1px solid #e1eaf0;
+}
+
+.panelhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #102b46;
+  color: white;
+  padding: 16px 6%;
+}
+
+.ghost {
+  background: transparent;
+  border: 1px solid #7991a3;
+  padding: 10px;
+}
+
+.workspace {
+  max-width: 1000px;
+  margin: 50px auto;
+  min-height: 55vh;
+  padding: 0 20px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 30px 0;
+}
+
+.stats div {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+}
+
+.stats strong {
+  font-size: 38px;
+  color: #0d9488;
+}
+
+.stats span {
+  color: #6e8494;
+}
+
+.tool {
+  margin-top: 20px;
+}
+
+label {
+  display: block;
+  margin: 20px 0 10px;
+}
+
+.formrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 12px 0;
+}
+
+input {
+  font: inherit;
+  border: 1px solid #cddce5;
+  padding: 14px;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.courses {
+  margin-top: 20px;
+}
+
+.course {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #e4edf1;
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.course button {
+  background: #fce8e8;
+  color: #a52b2b;
+  padding: 8px 12px;
+}
+
+.empty {
+  color: #8094a2;
+}
+
+/* Admin dashboard */
+
+#dashboard input,
+#dashboard select,
+#dashboard textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0 14px;
+  padding: 11px 13px;
+  border: 1px solid #c8d7df;
+  border-radius: 10px;
+  background: #fff;
+  color: #102b46;
+  font: inherit;
+}
+
+#dashboard label {
+  display: block;
+  font-weight: 600;
+}
+
+#dashboard button,
+.importLabel {
+  cursor: pointer;
+}
+
+.editorCourse {
+  padding: 20px;
+  border: 1px solid #d9e3eb;
+  border-radius: 16px;
+  background: #fff;
+  margin: 16px 0;
+}
+
+.courseHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.editorCourse h3 {
+  margin: 0;
+}
+
+.danger {
+  background: #fff !important;
+  color: #a52b37 !important;
+  border: 1px solid #e9bdc3 !important;
+}
+
+.lessonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e4ebf0;
+}
+
+.lessonForm {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f8fc;
+}
+
+.lessonForm h4 {
+  margin: 0 0 10px;
+}
+
+.catalogLesson {
+  border-top: 1px solid #dde6e9;
+  padding: 12px 0;
+}
+
+.catalogLesson p {
+  white-space: pre-wrap;
+}
+
+.importLabel {
+  padding: 8px;
+  border: 1px solid #bccbd5;
+  border-radius: 10px;
+}
+
+.importLabel input {
+  max-width: 200px;
+}
+
+#publishedCatalog:empty {
+  display: none;
+}
+
+/* Student panel */
+
+#studentPanel {
+  direction: rtl;
+}
+
+#studentPanel input {
+  width: 100%;
+  max-width: 100%;
+}
+
+#studentPanel button {
+  font-family: inherit;
+}
+
+/* Red student logout button */
+
+#studentLogoutBtn,
+#studentPanel #studentLogoutBtn,
+#studentPanel button#studentLogoutBtn {
+  background: #dc3545 !important;
+  background-color: #dc3545 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#studentLogoutBtn:hover,
+#studentPanel #studentLogoutBtn:hover {
+  background: #b02a37 !important;
+  background-color: #b02a37 !important;
+}
+
+#studentLogoutBtn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* Responsive */
+
+@media (max-width: 750px) {
+  header {
+    padding: 14px 4%;
+  }
+
+  nav {
+    display: none;
+  }
+
+  .logo {
+    font-size: 17px;
+  }
+
+  .hero {
+    padding: 75px 6%;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .metrics {
+    gap: 22px;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .highlight {
+    margin: 20px 4%;
+    grid-template-columns: 1fr;
+    padding: 28px;
+  }
+
+  .pricing {
+    grid-template-columns: 1fr;
+  }
+
+  .formrow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .stats {
+    gap: 8px;
+  }
+
+  .stats div {
+    padding: 15px;
+  }
+
+  .stats strong {
+    font-size: 28px;
+  }
+}
