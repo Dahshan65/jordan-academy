@@ -927,3 +927,45 @@ textarea:focus {
   }
 
 }
+
+/* تحسين أزرار الواجهة الرئيسية على الهاتف */
+
+@media (max-width: 750px) {
+
+  .hero .actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+
+    width: 100% !important;
+    max-width: 340px !important;
+
+    gap: 24px !important;
+    margin: 30px auto !important;
+  }
+
+  .hero .actions a,
+  .hero .actions button,
+  .hero .actions .btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: 100% !important;
+    min-height: 60px !important;
+
+    margin: 0 !important;
+    padding: 14px 20px !important;
+
+    border-radius: 14px !important;
+    font-size: 19px !important;
+    text-align: center !important;
+
+    position: static !important;
+    float: none !important;
+    transform: none !important;
+  }
+
+}
