@@ -73,7 +73,7 @@ function show(which) {
   $('loginBox').hidden =
     !adminPage || isAdmin;
 
-  $('dashboard').hidden =
+  $('adminDashboard').hidden =
     !adminPage || !isAdmin;
 }
 
