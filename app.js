@@ -2,10 +2,9 @@
 'use strict';
 
 /*
- Jordan Academy
- Complete app.js
- Courses, Lessons, Video Player,
- Student Progress, Admin Dashboard
+ Jordan Academy - Complete app.js
+ Courses, Lessons, Student Progress,
+ Video Playback, Administration
 */
 
 const $ = id => document.getElementById(id);
@@ -39,6 +38,7 @@ let courses = [];
 let isAdmin = false;
 let progressUserId = 'guest';
 let studentRequest = 0;
+let progressListeners = new AbortController();
 
 function el(tag, cls = '', content) {
   const node = document.createElement(tag);
@@ -58,9 +58,9 @@ function message(text) {
   alert(text);
 }
 
-/* ==========================
-   PROGRESS STORAGE
-========================== */
+/* ===================================
+   LESSON PROGRESS
+=================================== */
 
 function progressKey(lessonId) {
   return (
@@ -89,12 +89,10 @@ function getProgress(lessonId) {
 
 function saveProgress(lessonId, changes) {
   try {
-    const previous = getProgress(lessonId);
-
     localStorage.setItem(
       progressKey(lessonId),
       JSON.stringify({
-        ...previous,
+        ...getProgress(lessonId),
         ...changes,
         updatedAt: Date.now()
       })
@@ -111,7 +109,9 @@ function saveProgress(lessonId, changes) {
 }
 
 function timeLabel(value) {
-  const seconds = Math.floor(Math.max(0, value || 0));
+  const seconds = Math.floor(
+    Math.max(0, value || 0)
+  );
 
   return (
     Math.floor(seconds / 60) +
@@ -120,23 +120,30 @@ function timeLabel(value) {
   );
 }
 
-/* ==========================
-   VIDEO SOURCE
-========================== */
+/* ===================================
+   VIDEO SOURCES
+=================================== */
 
 function videoSource(raw) {
   const url = validHttps(raw);
   if (!url) return null;
 
   const u = new URL(url);
-  const host = u.hostname.toLowerCase().replace(/^www\./, '');
+  const host = u.hostname
+    .toLowerCase()
+    .replace(/^www\./, '');
 
   let id = '';
 
-  if (host === 'youtube.com' || host === 'm.youtube.com') {
+  if (
+    host === 'youtube.com' ||
+    host === 'm.youtube.com'
+  ) {
     if (u.pathname === '/watch') {
       id = u.searchParams.get('v') || '';
-    } else if (/^\/(embed|shorts|live)\//.test(u.pathname)) {
+    } else if (
+      /^\/(embed|shorts|live)\//.test(u.pathname)
+    ) {
       id = u.pathname.split('/')[2] || '';
     }
   } else if (host === 'youtu.be') {
@@ -144,25 +151,19 @@ function videoSource(raw) {
   }
 
   if (/^[a-zA-Z0-9_-]{11}$/.test(id)) {
-    return {
-      type: 'youtube',
-      id
-    };
+    return { type: 'youtube', id };
   }
 
   if (/\.mp4(?:$|\?)/i.test(url)) {
-    return {
-      type: 'mp4',
-      url
-    };
+    return { type: 'mp4', url };
   }
 
   return null;
 }
 
-/* ==========================
-   YOUTUBE API
-========================== */
+/* ===================================
+   YOUTUBE PLAYER API
+=================================== */
 
 let youtubeApiPromise = null;
 
@@ -175,39 +176,46 @@ function loadYouTubeApi() {
     return youtubeApiPromise;
   }
 
-  youtubeApiPromise = new Promise((resolve, reject) => {
-    const previous = window.onYouTubeIframeAPIReady;
+  youtubeApiPromise = new Promise(
+    (resolve, reject) => {
+      const previous =
+        window.onYouTubeIframeAPIReady;
 
-    window.onYouTubeIframeAPIReady = () => {
-      if (typeof previous === 'function') previous();
-      resolve(window.YT);
-    };
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previous === 'function') {
+          previous();
+        }
+        resolve(window.YT);
+      };
 
-    const script = document.createElement('script');
-    script.src = 'https://www.youtube.com/iframe_api';
+      const script = document.createElement('script');
+      script.src =
+        'https://www.youtube.com/iframe_api';
 
-    script.onerror = () => {
-      youtubeApiPromise = null;
-      reject(new Error('تعذر تحميل مشغل YouTube'));
-    };
+      script.onerror = () => {
+        youtubeApiPromise = null;
+        reject(new Error('YouTube API unavailable'));
+      };
 
-    document.head.append(script);
-  });
+      document.head.append(script);
+    }
+  );
 
   return youtubeApiPromise;
 }
 
-/* ==========================
+/* ===================================
    VIDEO PLAYER
-========================== */
+=================================== */
 
 function appendLessonMedia(wrap, lesson) {
   const url = validHttps(lesson.content_url);
   if (!url) return;
 
-  const source = lesson.content_type === 'video'
-    ? videoSource(url)
-    : null;
+  const source =
+    lesson.content_type === 'video'
+      ? videoSource(url)
+      : null;
 
   if (!source) {
     const link = el(
@@ -226,12 +234,17 @@ function appendLessonMedia(wrap, lesson) {
     return;
   }
 
-  const playerBox = el('div', 'academyVideoPlayer');
-  playerBox.hidden = true;
+  const playerBox = el(
+    'div',
+    'academyVideoPlayer'
+  );
 
+  playerBox.hidden = true;
   playerBox.style.cssText =
-    'width:100%;max-width:800px;aspect-ratio:16/9;' +
-    'background:#091c30;border-radius:12px;' +
+    'width:100%;max-width:850px;' +
+    'aspect-ratio:16/9;' +
+    'background:#091c30;' +
+    'border-radius:14px;' +
     'overflow:hidden;margin-top:12px;';
 
   const status = el('p', 'muted');
@@ -242,20 +255,22 @@ function appendLessonMedia(wrap, lesson) {
   let generation = 0;
 
   function refreshStatus() {
-    const progress = getProgress(lesson.id);
+    const p = getProgress(lesson.id);
 
-    status.textContent = progress.completed
+    status.textContent = p.completed
       ? '✓ تم إكمال هذا الدرس'
-      : progress.seconds >= 5
-        ? 'آخر مشاهدة: ' + timeLabel(progress.seconds)
+      : p.seconds >= 5
+        ? 'آخر مشاهدة: ' + timeLabel(p.seconds)
         : 'سيتم حفظ موضع المشاهدة تلقائيًا.';
   }
 
   function closePlayer() {
     generation++;
 
-    if (timer) clearInterval(timer);
-    timer = null;
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
 
     if (video) {
       if (!video.ended) {
@@ -272,7 +287,10 @@ function appendLessonMedia(wrap, lesson) {
       try {
         const seconds = ytPlayer.getCurrentTime();
 
-        if (Number.isFinite(seconds) && seconds > 0) {
+        if (
+          Number.isFinite(seconds) &&
+          seconds > 0
+        ) {
           saveProgress(lesson.id, { seconds });
         }
 
@@ -284,7 +302,9 @@ function appendLessonMedia(wrap, lesson) {
 
     playerBox.replaceChildren();
     playerBox.hidden = true;
-    toggle.textContent = '▶ متابعة مشاهدة الفيديو';
+    toggle.textContent =
+      '▶ متابعة مشاهدة الفيديو';
+
     refreshStatus();
   }
 
@@ -300,6 +320,7 @@ function appendLessonMedia(wrap, lesson) {
       toggle.textContent = 'إغلاق الفيديو';
 
       const currentGeneration = ++generation;
+
       const savedSeconds = Math.floor(
         getProgress(lesson.id).seconds
       );
@@ -314,32 +335,41 @@ function appendLessonMedia(wrap, lesson) {
         video.style.cssText =
           'width:100%;height:100%;display:block;';
 
-        video.addEventListener('loadedmetadata', () => {
-          if (
-            savedSeconds > 0 &&
-            savedSeconds < video.duration - 2
-          ) {
-            video.currentTime = savedSeconds;
-          }
-        }, { once: true });
+        video.addEventListener(
+          'loadedmetadata',
+          () => {
+            if (
+              savedSeconds > 0 &&
+              savedSeconds < video.duration - 2
+            ) {
+              video.currentTime = savedSeconds;
+            }
+          },
+          { once: true }
+        );
 
         let lastSaved = -1;
 
-        video.addEventListener('timeupdate', () => {
-          const second = Math.floor(video.currentTime);
+        video.addEventListener(
+          'timeupdate',
+          () => {
+            const second = Math.floor(
+              video.currentTime
+            );
 
-          if (
-            second > 0 &&
-            second % 5 === 0 &&
-            second !== lastSaved
-          ) {
-            lastSaved = second;
+            if (
+              second > 0 &&
+              second % 5 === 0 &&
+              second !== lastSaved
+            ) {
+              lastSaved = second;
 
-            saveProgress(lesson.id, {
-              seconds: video.currentTime
-            });
+              saveProgress(lesson.id, {
+                seconds: video.currentTime
+              });
+            }
           }
-        });
+        );
 
         video.addEventListener('pause', () => {
           if (!video.ended) {
@@ -363,7 +393,9 @@ function appendLessonMedia(wrap, lesson) {
       }
 
       const target = el('div');
-      target.style.cssText = 'width:100%;height:100%;';
+      target.style.cssText =
+        'width:100%;height:100%;';
+
       playerBox.append(target);
 
       try {
@@ -372,34 +404,49 @@ function appendLessonMedia(wrap, lesson) {
         if (
           currentGeneration !== generation ||
           !target.isConnected
-        ) return;
+        ) {
+          return;
+        }
 
         ytPlayer = new YT.Player(target, {
           videoId: source.id,
           width: '100%',
           height: '100%',
+
           playerVars: {
             rel: 0,
             start: savedSeconds,
             playsinline: 1
           },
+
           events: {
             onReady: () => {
-              if (currentGeneration !== generation) return;
+              if (
+                currentGeneration !== generation
+              ) return;
 
               timer = setInterval(() => {
                 try {
-                  const seconds = ytPlayer.getCurrentTime();
+                  const seconds =
+                    ytPlayer.getCurrentTime();
 
-                  if (Number.isFinite(seconds) && seconds > 0) {
-                    saveProgress(lesson.id, { seconds });
+                  if (
+                    Number.isFinite(seconds) &&
+                    seconds > 0
+                  ) {
+                    saveProgress(lesson.id, {
+                      seconds
+                    });
                   }
                 } catch (_) {}
               }, 3000);
             },
 
             onStateChange: event => {
-              if (event.data === YT.PlayerState.ENDED) {
+              if (
+                event.data ===
+                YT.PlayerState.ENDED
+              ) {
                 saveProgress(lesson.id, {
                   seconds: 0,
                   completed: true
@@ -407,11 +454,13 @@ function appendLessonMedia(wrap, lesson) {
 
                 refreshStatus();
               } else if (
-                event.data === YT.PlayerState.PAUSED
+                event.data ===
+                YT.PlayerState.PAUSED
               ) {
                 try {
                   saveProgress(lesson.id, {
-                    seconds: ytPlayer.getCurrentTime()
+                    seconds:
+                      ytPlayer.getCurrentTime()
                   });
                 } catch (_) {}
               }
@@ -419,7 +468,9 @@ function appendLessonMedia(wrap, lesson) {
           }
         });
       } catch (_) {
-        if (currentGeneration !== generation) return;
+        if (
+          currentGeneration !== generation
+        ) return;
 
         const iframe = el('iframe');
 
@@ -428,9 +479,12 @@ function appendLessonMedia(wrap, lesson) {
           encodeURIComponent(source.id) +
           '?rel=0&start=' + savedSeconds;
 
-        iframe.title = lesson.title || 'فيديو الدرس';
+        iframe.title =
+          lesson.title || 'فيديو الدرس';
+
         iframe.allow =
           'autoplay; encrypted-media; picture-in-picture';
+
         iframe.allowFullscreen = true;
         iframe.style.cssText =
           'width:100%;height:100%;border:0;';
@@ -443,54 +497,76 @@ function appendLessonMedia(wrap, lesson) {
     }
   );
 
+  toggle.classList.add(
+    'academyVideoPlayerButton'
+  );
+
   refreshStatus();
-  wrap.append(toggle, status, playerBox);
+
+  wrap.append(
+    toggle,
+    status,
+    playerBox
+  );
 }
 
-/* ==========================
-   NAVIGATION
-========================== */
-
-function show(which) {
-  const adminPage = which === 'admin';
-
-  $('home').hidden = adminPage;
-  $('panel').hidden = !adminPage;
-  $('loginBox').hidden = !adminPage || isAdmin;
-  $('adminDashboard').hidden = !adminPage || !isAdmin;
-}
+/* ===================================
+   PAGE NAVIGATION
+=================================== */
 
 function route() {
-  const hash = window.location.hash;
+  const hash =
+    window.location.hash || '#home';
 
   const adminPage = hash === '#admin';
-  const studentPage = hash === '#students';
 
-  show(adminPage ? 'admin' : 'home');
+  const studentPage =
+    hash === '#students' ||
+    hash === '#dashboard';
 
+  const homePage =
+    !adminPage && !studentPage;
+
+  const home = $('home');
+  const panel = $('panel');
+  const loginBox = $('loginBox');
+  const adminDashboard = $('adminDashboard');
   const studentPanel = $('studentPanel');
+
+  if (home) {
+    home.hidden = !homePage;
+  }
+
+  if (panel) {
+    panel.hidden = !adminPage;
+  }
+
+  if (loginBox) {
+    loginBox.hidden =
+      !adminPage || isAdmin;
+  }
+
+  if (adminDashboard) {
+    adminDashboard.hidden =
+      !adminPage || !isAdmin;
+  }
 
   if (studentPanel) {
     studentPanel.hidden = !studentPage;
   }
 
-  if (studentPage) {
-    requestAnimationFrame(() => {
-      studentPanel?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    });
-  } else {
-    window.scrollTo(0, 0);
-  }
+  // Do not scroll automatically.
+  // The browser keeps the current scroll position.
 }
 
-window.addEventListener('hashchange', route);
+window.addEventListener(
+  'hashchange',
+  route
+);
 
-/* ==========================
+/* ===================================
    LOAD COURSES
-========================== */
+=================================== */
 
 async function loadCourses() {
   if (!db) return;
@@ -506,13 +582,16 @@ async function loadCourses() {
 
   if (error) {
     $('cloudStatus').textContent =
-      'تعذر تحميل الدورات: ' + error.message;
+      'تعذر تحميل الدورات: ' +
+      error.message;
     return;
   }
 
   courses = data || [];
 
-  const ids = courses.map(c => c.id);
+  const ids = courses.map(
+    course => course.id
+  );
 
   if (ids.length) {
     const result = await db
@@ -525,11 +604,16 @@ async function loadCourses() {
 
     if (result.error) {
       $('cloudStatus').textContent =
-        'تعذر تحميل الدروس: ' + result.error.message;
+        'تعذر تحميل الدروس: ' +
+        result.error.message;
     } else {
       for (const course of courses) {
-        course.lessons = (result.data || [])
-          .filter(l => l.course_id === course.id);
+        course.lessons = (
+          result.data || []
+        ).filter(
+          lesson =>
+            lesson.course_id === course.id
+        );
       }
     }
   }
@@ -541,32 +625,46 @@ async function loadCourses() {
   render();
 }
 
-/* ==========================
+/* ===================================
    ADMIN COURSE MANAGEMENT
-========================== */
+=================================== */
 
 function render() {
-  $('courseCount').textContent = courses.length;
+  $('courseCount').textContent =
+    courses.length;
 
-  $('lessonCount').textContent = courses.reduce(
-    (total, course) =>
-      total + course.lessons.length,
-    0
-  );
+  $('lessonCount').textContent =
+    courses.reduce(
+      (total, course) =>
+        total + course.lessons.length,
+      0
+    );
 
   const list = $('courseList');
   list.replaceChildren();
 
   if (!courses.length) {
     list.append(
-      el('p', 'muted', 'لا توجد دورات بعد.')
+      el(
+        'p',
+        'muted',
+        'لا توجد دورات بعد.'
+      )
     );
   }
 
   if (isAdmin) {
     for (const course of courses) {
-      const card = el('article', 'editorCourse');
-      const head = el('div', 'courseHeading');
+      const card = el(
+        'article',
+        'editorCourse'
+      );
+
+      const head = el(
+        'div',
+        'courseHeading'
+      );
+
       const info = el('div');
 
       info.append(
@@ -575,13 +673,18 @@ function render() {
           'p',
           'muted',
           (course.category || 'عام') +
-          ' · ' + course.lessons.length + ' درس'
+          ' · ' +
+          course.lessons.length +
+          ' درس'
         )
       );
 
       head.append(info);
 
-      const controls = el('div', 'formrow');
+      const controls = el(
+        'div',
+        'formrow'
+      );
 
       controls.append(
         button(
@@ -592,28 +695,41 @@ function render() {
             const { error } = await db
               .from('courses')
               .update({
-                is_published: !course.is_published
+                is_published:
+                  !course.is_published
               })
               .eq('id', course.id);
 
-            if (error) message(error.message);
+            if (error) {
+              message(error.message);
+            }
+
             await loadCourses();
           }
         ),
 
-        button('حذف الدورة', async () => {
-          if (!confirm(
-            'حذف الدورة وجميع دروسها نهائيًا؟'
-          )) return;
+        button(
+          'حذف الدورة',
+          async () => {
+            if (
+              !confirm(
+                'حذف الدورة وجميع دروسها نهائيًا؟'
+              )
+            ) return;
 
-          const { error } = await db
-            .from('courses')
-            .delete()
-            .eq('id', course.id);
+            const { error } = await db
+              .from('courses')
+              .delete()
+              .eq('id', course.id);
 
-          if (error) message(error.message);
-          await loadCourses();
-        }, 'danger')
+            if (error) {
+              message(error.message);
+            }
+
+            await loadCourses();
+          },
+          'danger'
+        )
       );
 
       card.append(
@@ -621,15 +737,22 @@ function render() {
         el(
           'p',
           'muted',
-          course.description || 'لا يوجد وصف'
+          course.description ||
+            'لا يوجد وصف'
         ),
         controls
       );
 
-      const lessons = el('div', 'lessons');
+      const lessons = el(
+        'div',
+        'lessons'
+      );
 
       for (const lesson of course.lessons) {
-        const row = el('div', 'lessonRow');
+        const row = el(
+          'div',
+          'lessonRow'
+        );
 
         const typeLabel = {
           video: 'فيديو',
@@ -641,29 +764,47 @@ function render() {
           el(
             'span',
             '',
-            lesson.title + ' — ' + typeLabel +
-            (lesson.is_free ? ' · مجاني' : '')
+            lesson.title +
+            ' — ' +
+            typeLabel +
+            (
+              lesson.is_free
+                ? ' · مجاني'
+                : ''
+            )
           )
         );
 
         if (lesson.content_url) {
-          appendLessonMedia(row, lesson);
+          appendLessonMedia(
+            row,
+            lesson
+          );
         }
 
         row.append(
-          button('حذف', async () => {
-            if (!confirm('هل تريد حذف هذا الدرس؟')) {
-              return;
-            }
+          button(
+            'حذف',
+            async () => {
+              if (
+                !confirm(
+                  'هل تريد حذف هذا الدرس؟'
+                )
+              ) return;
 
-            const { error } = await db
-              .from('lessons')
-              .delete()
-              .eq('id', lesson.id);
+              const { error } = await db
+                .from('lessons')
+                .delete()
+                .eq('id', lesson.id);
 
-            if (error) message(error.message);
-            await loadCourses();
-          }, 'danger')
+              if (error) {
+                message(error.message);
+              }
+
+              await loadCourses();
+            },
+            'danger'
+          )
         );
 
         lessons.append(row);
@@ -671,28 +812,42 @@ function render() {
 
       card.append(lessons);
 
-      const form = el('form', 'lessonForm');
+      const form = el(
+        'form',
+        'lessonForm'
+      );
 
       form.innerHTML = `
         <h4>إضافة درس</h4>
 
         <label>
           عنوان الدرس
-          <input name="title" maxlength="100" required>
+          <input
+            name="title"
+            maxlength="100"
+            required>
         </label>
 
         <label>
           نوع الدرس
           <select name="type">
-            <option value="video">فيديو</option>
-            <option value="pdf">PDF</option>
-            <option value="text">نص تعليمي</option>
+            <option value="video">
+              فيديو
+            </option>
+            <option value="pdf">
+              PDF
+            </option>
+            <option value="text">
+              نص تعليمي
+            </option>
           </select>
         </label>
 
         <label>
           رابط الفيديو أو PDF
-          <input name="url" type="url">
+          <input
+            name="url"
+            type="url">
         </label>
 
         <label>
@@ -704,7 +859,9 @@ function render() {
         </label>
 
         <label>
-          <input type="checkbox" name="free">
+          <input
+            type="checkbox"
+            name="free">
           درس مجاني متاح للجميع
         </label>
 
@@ -713,36 +870,60 @@ function render() {
         </button>
       `;
 
-      form.addEventListener('submit', async event => {
-        event.preventDefault();
+      form.addEventListener(
+        'submit',
+        async event => {
+          event.preventDefault();
 
-        if (!isAdmin) return;
+          if (!isAdmin) return;
 
-        const f = new FormData(form);
-        const url = clean(f.get('url'));
+          const f = new FormData(form);
+          const url = clean(
+            f.get('url')
+          );
 
-        if (url && !validHttps(url)) {
-          message('أدخل رابط https صحيحًا');
-          return;
+          if (
+            url &&
+            !validHttps(url)
+          ) {
+            message(
+              'أدخل رابط https صحيحًا'
+            );
+            return;
+          }
+
+          const { error } = await db
+            .from('lessons')
+            .insert({
+              course_id: course.id,
+              title: clean(
+                f.get('title'),
+                100
+              ),
+              content_type: clean(
+                f.get('type')
+              ),
+              content_url:
+                validHttps(url) || null,
+              content_text: clean(
+                f.get('body'),
+                3000
+              ),
+              is_free:
+                f.has('free'),
+              lesson_order:
+                course.lessons.length + 1
+            });
+
+          if (error) {
+            message(error.message);
+          } else {
+            form.reset();
+          }
+
+          await loadCourses();
         }
-
-        const { error } = await db
-          .from('lessons')
-          .insert({
-            course_id: course.id,
-            title: clean(f.get('title'), 100),
-            content_type: clean(f.get('type')),
-            content_url: validHttps(url) || null,
-            content_text: clean(f.get('body'), 3000),
-            is_free: f.has('free'),
-            lesson_order: course.lessons.length + 1
-          });
-
-        if (error) message(error.message);
-        else form.reset();
-
-        await loadCourses();
-      });
+      );
 
       card.append(form);
       list.append(card);
@@ -752,9 +933,9 @@ function render() {
   renderCatalog();
 }
 
-/* ==========================
-   PUBLIC CATALOG
-========================== */
+/* ===================================
+   PUBLIC COURSE CATALOG
+=================================== */
 
 function renderCatalog() {
   const list = $('publishedCatalog');
@@ -784,30 +965,51 @@ function renderCatalog() {
       el(
         'p',
         '',
-        course.description || course.category || ''
+        course.description ||
+        course.category ||
+        ''
       )
     );
 
     const details = el('details');
 
     details.append(
-      el('summary', '', 'عرض الدروس المجانية')
+      el(
+        'summary',
+        '',
+        'عرض الدروس المجانية'
+      )
     );
 
-    const freeLessons = course.lessons.filter(
-      lesson => lesson.is_free
-    );
+    const freeLessons =
+      course.lessons.filter(
+        lesson => lesson.is_free
+      );
 
     for (const lesson of freeLessons) {
-      const row = el('div', 'catalogLesson');
+      const row = el(
+        'div',
+        'catalogLesson'
+      );
 
       row.append(
-        el('strong', '', lesson.title),
-        el('p', '', lesson.content_text || '')
+        el(
+          'strong',
+          '',
+          lesson.title
+        ),
+        el(
+          'p',
+          '',
+          lesson.content_text || ''
+        )
       );
 
       if (lesson.content_url) {
-        appendLessonMedia(row, lesson);
+        appendLessonMedia(
+          row,
+          lesson
+        );
       }
 
       details.append(row);
@@ -828,17 +1030,20 @@ function renderCatalog() {
   }
 }
 
-/* ==========================
+/* ===================================
    ADMIN AUTHENTICATION
-========================== */
+=================================== */
 
 async function checkAdmin() {
   if (!db) return;
 
-  const { data, error } = await db.auth.getUser();
+  const { data, error } =
+    await db.auth.getUser();
+
   const user = data?.user;
 
-  progressUserId = user?.id || 'guest';
+  progressUserId =
+    user?.id || 'guest';
 
   if (error || !user) {
     isAdmin = false;
@@ -846,9 +1051,14 @@ async function checkAdmin() {
     return;
   }
 
-  const result = await db.rpc('is_academy_admin');
+  const result = await db.rpc(
+    'is_academy_admin'
+  );
 
-  isAdmin = !result.error && result.data === true;
+  isAdmin =
+    !result.error &&
+    result.data === true;
+
   route();
 }
 
@@ -858,18 +1068,24 @@ $('loginForm').addEventListener(
     event.preventDefault();
 
     if (!db) {
-      message('ضع المفتاح العام في config.js أولًا');
+      message(
+        'ضع المفتاح العام في config.js أولًا'
+      );
       return;
     }
 
-    const { error } = await db.auth.signInWithPassword({
-      email: $('adminEmail').value.trim(),
-      password: $('adminPassword').value
-    });
+    const { error } =
+      await db.auth.signInWithPassword({
+        email:
+          $('adminEmail').value.trim(),
+        password:
+          $('adminPassword').value
+      });
 
     if (error) {
       message(
-        'تعذر تسجيل الدخول: ' + error.message
+        'تعذر تسجيل الدخول: ' +
+        error.message
       );
       return;
     }
@@ -879,23 +1095,26 @@ $('loginForm').addEventListener(
     await checkAdmin();
 
     if (!isAdmin) {
-      message('هذا الحساب ليس مديرًا معتمدًا');
+      message(
+        'هذا الحساب ليس مديرًا معتمدًا'
+      );
     }
 
     await loadCourses();
   }
 );
 
-/* ==========================
-   LOGOUT
-========================== */
+/* ===================================
+   ADMIN LOGOUT
+=================================== */
 
 $('logoutBtn').addEventListener(
   'click',
   async () => {
     if (!db) return;
 
-    const { error } = await db.auth.signOut();
+    const { error } =
+      await db.auth.signOut();
 
     if (error) {
       message(error.message);
@@ -910,9 +1129,9 @@ $('logoutBtn').addEventListener(
   }
 );
 
-/* ==========================
+/* ===================================
    CREATE COURSE
-========================== */
+=================================== */
 
 $('courseForm').addEventListener(
   'submit',
@@ -924,117 +1143,181 @@ $('courseForm').addEventListener(
     const { error } = await db
       .from('courses')
       .insert({
-        title: clean($('courseTitle').value, 90),
-        category: clean($('courseCategory').value, 70),
-        description: clean($('courseDescription').value),
+        title: clean(
+          $('courseTitle').value,
+          90
+        ),
+        category: clean(
+          $('courseCategory').value,
+          70
+        ),
+        description: clean(
+          $('courseDescription').value
+        ),
         is_published: false
       });
 
-    if (error) message(error.message);
-    else event.target.reset();
+    if (error) {
+      message(error.message);
+    } else {
+      event.target.reset();
+    }
 
     await loadCourses();
   }
 );
 
-/* ==========================
+/* ===================================
    COURSE PROGRESS DASHBOARD
-========================== */
+=================================== */
 
-function createProgressDashboard(course, lessons) {
-  const wrapper = el('div', 'academyProgressDashboard');
+function createProgressDashboard(
+  course,
+  lessons
+) {
+  const wrapper = el(
+    'div',
+    'academyProgressDashboard'
+  );
 
   wrapper.style.cssText =
-    'background:#f0fdfa;border:1px solid #99f6e4;' +
-    'border-radius:16px;padding:20px;margin:15px 0;' +
+    'background:#f0fdfa;' +
+    'border:1px solid #99f6e4;' +
+    'border-radius:16px;' +
+    'padding:20px;' +
+    'margin:15px 0;' +
     'direction:rtl;';
 
-  const title = el('h4', '', 'تقدّمك في الدورة');
+  const title = el(
+    'h4',
+    '',
+    'تقدّمك في الدورة'
+  );
 
   title.style.cssText =
-    'margin:0 0 12px;color:#115e59;';
+    'margin:0 0 12px;' +
+    'color:#115e59;';
 
   const percentage = el('strong');
-  percentage.style.cssText =
-    'font-size:27px;color:#0f766e;';
 
-  const description = el('p', 'muted');
-  description.style.margin = '8px 0';
+  percentage.style.cssText =
+    'font-size:28px;' +
+    'color:#0f766e;';
+
+  const description = el(
+    'p',
+    'muted'
+  );
+
+  description.style.margin =
+    '8px 0';
 
   const track = el('div');
 
   track.style.cssText =
-    'height:14px;background:#cbd5e1;' +
-    'border-radius:20px;overflow:hidden;';
+    'height:14px;' +
+    'background:#cbd5e1;' +
+    'border-radius:20px;' +
+    'overflow:hidden;';
 
   const fill = el('div');
 
   fill.style.cssText =
-    'height:100%;width:0%;background:#0d9488;' +
-    'border-radius:20px;transition:width .3s;';
+    'height:100%;width:0%;' +
+    'background:#0d9488;' +
+    'border-radius:20px;' +
+    'transition:width .3s;';
 
   track.append(fill);
 
   const completionMessage = el('p');
+
   completionMessage.style.cssText =
-    'font-weight:bold;color:#0f766e;margin-top:12px;';
+    'font-weight:bold;' +
+    'color:#0f766e;' +
+    'margin-top:12px;';
 
   const continueButton = button(
     '▶ متابعة التعلم',
     () => {
       const next = lessons.find(
-        lesson => !getProgress(lesson.id).completed
+        lesson =>
+          !getProgress(
+            lesson.id
+          ).completed
       ) || lessons[0];
 
       if (!next) return;
 
-      const target = document.getElementById(
-        'academy-lesson-' + next.id
-      );
+      const target =
+        document.getElementById(
+          'academy-lesson-' +
+          next.id
+        );
 
-      target?.scrollIntoView({
+      if (!target) return;
+
+      target.scrollIntoView({
         behavior: 'smooth',
         block: 'center'
       });
 
-      if (target) {
-        target.style.background = '#ecfdf5';
+      target.style.background =
+        '#ecfdf5';
 
-        const playButton = target.querySelector(
+      const playButton =
+        target.querySelector(
           '.academyVideoPlayerButton'
         );
 
-        if (playButton) {
-          playButton.focus();
-        }
+      if (playButton) {
+        playButton.focus({
+          preventScroll: true
+        });
       }
     }
   );
 
   continueButton.style.cssText =
-    'margin-top:12px;background:#0d9488;' +
-    'color:white;border-radius:10px;';
+    'margin-top:12px;' +
+    'background:#0d9488;' +
+    'color:white;' +
+    'border-radius:10px;';
 
   function updateDashboard() {
     const total = lessons.length;
 
-    const completed = lessons.filter(
-      lesson => getProgress(lesson.id).completed
-    ).length;
+    const completed =
+      lessons.filter(
+        lesson =>
+          getProgress(
+            lesson.id
+          ).completed
+      ).length;
 
     const percent = total
-      ? Math.round((completed / total) * 100)
+      ? Math.round(
+          completed / total * 100
+        )
       : 0;
 
-    percentage.textContent = percent + '%';
+    percentage.textContent =
+      percent + '%';
 
     description.textContent =
-      'أكملت ' + completed +
-      ' من أصل ' + total + ' دروس';
+      'أكملت ' +
+      completed +
+      ' من أصل ' +
+      total +
+      ' دروس';
 
-    fill.style.width = percent + '%';
+    fill.style.width =
+      percent + '%';
 
-    if (total > 0 && completed === total) {
+    if (
+      total > 0 &&
+      completed === total
+    ) {
       completionMessage.textContent =
         '🎉 أحسنت! لقد أكملت جميع دروس الدورة.';
 
@@ -1048,7 +1331,8 @@ function createProgressDashboard(course, lessons) {
         '▶ متابعة التعلم';
     }
 
-    continueButton.disabled = total === 0;
+    continueButton.disabled =
+      total === 0;
   }
 
   wrapper.append(
@@ -1065,68 +1349,116 @@ function createProgressDashboard(course, lessons) {
   window.addEventListener(
     'academyProgressChanged',
     updateDashboard,
-    { signal: progressListeners.signal }
+    {
+      signal:
+        progressListeners.signal
+    }
   );
 
   return wrapper;
 }
 
-/* ==========================
-   STUDENT ENROLLED LESSONS
-========================== */
-
-let progressListeners = new AbortController();
+/* ===================================
+   STUDENT LESSONS
+=================================== */
 
 async function renderStudentLessons() {
   const panel = $('studentPanel');
 
   if (!panel || !db) return;
 
-  const requestId = ++studentRequest;
+  const requestId =
+    ++studentRequest;
 
-  let area = $('enrolledLessonsArea');
+  let area = $(
+    'enrolledLessonsArea'
+  );
 
   if (!area) {
-    area = el('section', 'panelBox');
-    area.id = 'enrolledLessonsArea';
-    area.style.marginTop = '20px';
+    area = el(
+      'section',
+      'panelBox'
+    );
+
+    area.id =
+      'enrolledLessonsArea';
+
+    area.style.cssText =
+      'max-width:100%;' +
+      'margin:20px 0;' +
+      'padding:22px;';
+
     panel.append(area);
   }
 
-  const { data: authData, error: authError } =
-    await db.auth.getUser();
+  const {
+    data: authData,
+    error: authError
+  } = await db.auth.getUser();
 
-  if (requestId !== studentRequest) return;
+  if (
+    requestId !== studentRequest
+  ) return;
 
-  if (authError || !authData?.user) {
+  if (
+    authError ||
+    !authData?.user
+  ) {
     progressListeners.abort();
-    progressListeners = new AbortController();
+    progressListeners =
+      new AbortController();
 
     area.replaceChildren();
     area.hidden = true;
     return;
   }
 
-  progressUserId = authData.user.id;
+  progressUserId =
+    authData.user.id;
+
   area.hidden = false;
 
   area.replaceChildren(
-    el('h3', '', 'دروس دوراتي'),
-    el('p', 'muted', 'جارٍ تحميل الدروس...')
+    el(
+      'h3',
+      '',
+      'دروس دوراتي'
+    ),
+    el(
+      'p',
+      'muted',
+      'جارٍ تحميل الدروس...'
+    )
   );
 
-  const { data: enrollments, error: enrollError } =
-    await db
-      .from('enrollments')
-      .select('course_id,status')
-      .eq('student_id', authData.user.id)
-      .eq('status', 'active');
+  const {
+    data: enrollments,
+    error: enrollError
+  } = await db
+    .from('enrollments')
+    .select(
+      'course_id,status'
+    )
+    .eq(
+      'student_id',
+      authData.user.id
+    )
+    .eq(
+      'status',
+      'active'
+    );
 
-  if (requestId !== studentRequest) return;
+  if (
+    requestId !== studentRequest
+  ) return;
 
   if (enrollError) {
     area.replaceChildren(
-      el('h3', '', 'دروس دوراتي'),
+      el(
+        'h3',
+        '',
+        'دروس دوراتي'
+      ),
       el(
         'p',
         'muted',
@@ -1140,14 +1472,19 @@ async function renderStudentLessons() {
   const ids = [
     ...new Set(
       (enrollments || []).map(
-        enrollment => enrollment.course_id
+        enrollment =>
+          enrollment.course_id
       )
     )
   ];
 
   if (!ids.length) {
     area.replaceChildren(
-      el('h3', '', 'دروس دوراتي'),
+      el(
+        'h3',
+        '',
+        'دروس دوراتي'
+      ),
       el(
         'p',
         'muted',
@@ -1157,29 +1494,40 @@ async function renderStudentLessons() {
     return;
   }
 
-  const [courseResult, lessonResult] =
-    await Promise.all([
-      db
-        .from('courses')
-        .select('id,title')
-        .in('id', ids),
+  const [
+    courseResult,
+    lessonResult
+  ] = await Promise.all([
+    db
+      .from('courses')
+      .select('id,title')
+      .in('id', ids),
 
-      db
-        .from('lessons')
-        .select(
-          'id,course_id,title,description,content_type,content_url,content_text,lesson_order,is_free'
-        )
-        .in('course_id', ids)
-        .order('lesson_order', {
-          ascending: true
-        })
-    ]);
+    db
+      .from('lessons')
+      .select(
+        'id,course_id,title,description,content_type,content_url,content_text,lesson_order,is_free'
+      )
+      .in('course_id', ids)
+      .order('lesson_order', {
+        ascending: true
+      })
+  ]);
 
-  if (requestId !== studentRequest) return;
+  if (
+    requestId !== studentRequest
+  ) return;
 
-  if (courseResult.error || lessonResult.error) {
+  if (
+    courseResult.error ||
+    lessonResult.error
+  ) {
     area.replaceChildren(
-      el('h3', '', 'دروس دوراتي'),
+      el(
+        'h3',
+        '',
+        'دروس دوراتي'
+      ),
       el(
         'p',
         'muted',
@@ -1194,28 +1542,52 @@ async function renderStudentLessons() {
   }
 
   progressListeners.abort();
-  progressListeners = new AbortController();
+  progressListeners =
+    new AbortController();
 
   area.replaceChildren(
-    el('h3', '', 'دروس دوراتي')
+    el(
+      'h3',
+      '',
+      'دروس دوراتي'
+    )
   );
 
-  for (const course of courseResult.data || []) {
-    const group = el('div', 'editorCourse');
-
-    group.append(
-      el('h4', '', course.title)
+  for (
+    const course of
+    courseResult.data || []
+  ) {
+    const group = el(
+      'div',
+      'editorCourse'
     );
 
-    const lessons = (lessonResult.data || [])
-      .filter(
-        lesson => lesson.course_id === course.id
-      );
-
-    /* Progress dashboard */
+    group.style.cssText =
+      'margin:20px 0;' +
+      'padding:20px;' +
+      'border-radius:15px;';
 
     group.append(
-      createProgressDashboard(course, lessons)
+      el(
+        'h4',
+        '',
+        course.title
+      )
+    );
+
+    const lessons = (
+      lessonResult.data || []
+    ).filter(
+      lesson =>
+        lesson.course_id ===
+        course.id
+    );
+
+    group.append(
+      createProgressDashboard(
+        course,
+        lessons
+      )
     );
 
     if (!lessons.length) {
@@ -1229,19 +1601,31 @@ async function renderStudentLessons() {
     }
 
     for (const lesson of lessons) {
-      const row = el('div', 'catalogLesson');
+      const row = el(
+        'div',
+        'catalogLesson'
+      );
 
-      row.id = 'academy-lesson-' + lesson.id;
+      row.id =
+        'academy-lesson-' +
+        lesson.id;
 
       row.style.cssText =
-        'padding:15px;border-radius:12px;' +
+        'padding:15px;' +
+        'border-radius:12px;' +
         'margin:10px 0;';
 
       row.append(
-        el('strong', '', lesson.title)
+        el(
+          'strong',
+          '',
+          lesson.title
+        )
       );
 
-      if (lesson.description) {
+      if (
+        lesson.description
+      ) {
         row.append(
           el(
             'p',
@@ -1251,7 +1635,9 @@ async function renderStudentLessons() {
         );
       }
 
-      if (lesson.content_text) {
+      if (
+        lesson.content_text
+      ) {
         row.append(
           el(
             'p',
@@ -1261,53 +1647,65 @@ async function renderStudentLessons() {
         );
       }
 
-      if (lesson.content_url) {
-        appendLessonMedia(row, lesson);
-
-        const playButton = Array.from(
-          row.querySelectorAll('button')
-        ).find(
-          b => b.textContent.includes('مشاهدة الفيديو')
+      if (
+        lesson.content_url
+      ) {
+        appendLessonMedia(
+          row,
+          lesson
         );
-
-        if (playButton) {
-          playButton.classList.add(
-            'academyVideoPlayerButton'
-          );
-        }
       }
 
-      const progressLine = el('div', 'muted');
-      progressLine.style.marginTop = '10px';
+      const progressLine = el(
+        'div',
+        'muted'
+      );
 
-      const doneButton = button('', () => {
-        const completed =
-          !getProgress(lesson.id).completed;
+      progressLine.style.marginTop =
+        '10px';
 
-        saveProgress(lesson.id, {
-          completed
-        });
+      const doneButton = button(
+        '',
+        () => {
+          const completed =
+            !getProgress(
+              lesson.id
+            ).completed;
 
-        updateProgress();
-      });
+          saveProgress(
+            lesson.id,
+            { completed }
+          );
+
+          updateProgress();
+        }
+      );
 
       doneButton.style.cssText =
-        'margin-top:8px;padding:9px 15px;' +
+        'margin-top:8px;' +
+        'padding:9px 15px;' +
         'border-radius:9px;';
 
       function updateProgress() {
-        const progress = getProgress(lesson.id);
+        const progress =
+          getProgress(
+            lesson.id
+          );
 
-        progressLine.textContent = progress.completed
-          ? '✓ تم إكمال الدرس'
-          : progress.seconds >= 5
-            ? 'موضع المشاهدة المحفوظ: ' +
-              timeLabel(progress.seconds)
-            : 'لم يُكمل الدرس بعد';
+        progressLine.textContent =
+          progress.completed
+            ? '✓ تم إكمال الدرس'
+            : progress.seconds >= 5
+              ? 'موضع المشاهدة المحفوظ: ' +
+                timeLabel(
+                  progress.seconds
+                )
+              : 'لم يُكمل الدرس بعد';
 
-        doneButton.textContent = progress.completed
-          ? '↶ إلغاء علامة الإكمال'
-          : '✓ تحديد الدرس مكتملًا';
+        doneButton.textContent =
+          progress.completed
+            ? '↶ إلغاء علامة الإكمال'
+            : '✓ تحديد الدرس مكتملًا';
 
         doneButton.style.background =
           progress.completed
@@ -1318,11 +1716,17 @@ async function renderStudentLessons() {
       window.addEventListener(
         'academyProgressChanged',
         event => {
-          if (event.detail.lessonId === lesson.id) {
+          if (
+            event.detail.lessonId ===
+            lesson.id
+          ) {
             updateProgress();
           }
         },
-        { signal: progressListeners.signal }
+        {
+          signal:
+            progressListeners.signal
+        }
       );
 
       updateProgress();
@@ -1339,26 +1743,35 @@ async function renderStudentLessons() {
   }
 }
 
-/* ==========================
-   STUDENT PANEL REFRESH
-========================== */
+/* ===================================
+   STUDENT PAGE REFRESH
+=================================== */
 
 let studentLoadTimer = null;
 
 function scheduleStudentLessons() {
-  if (window.location.hash !== '#students') {
+  const hash =
+    window.location.hash;
+
+  if (
+    hash !== '#students' &&
+    hash !== '#dashboard'
+  ) {
     return;
   }
 
   if (studentLoadTimer) {
-    clearTimeout(studentLoadTimer);
+    clearTimeout(
+      studentLoadTimer
+    );
   }
 
-  studentLoadTimer = setTimeout(() => {
-    if ($('studentPanel')) {
-      renderStudentLessons();
-    }
-  }, 200);
+  studentLoadTimer =
+    setTimeout(() => {
+      if ($('studentPanel')) {
+        renderStudentLessons();
+      }
+    }, 200);
 }
 
 window.addEventListener(
@@ -1376,9 +1789,9 @@ window.addEventListener(
   scheduleStudentLessons
 );
 
-/* ==========================
+/* ===================================
    INITIALIZATION
-========================== */
+=================================== */
 
 async function init() {
   if (!configured) {
@@ -1397,12 +1810,14 @@ async function init() {
 
   await checkAdmin();
   await loadCourses();
+
   scheduleStudentLessons();
 
   db.auth.onAuthStateChange(() => {
     setTimeout(async () => {
       await checkAdmin();
       await loadCourses();
+
       scheduleStudentLessons();
     }, 0);
   });
