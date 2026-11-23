@@ -1,5 +1,5 @@
 'use strict';
-const key='dahshan_academy_demo_courses_v1';
+const key='jordan_academy_demo_courses_v1';
 function readCourses(){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'):[]}catch{return []}}
 function render(){const list=document.getElementById('courseList');list.replaceChildren();const courses=readCourses();document.getElementById('courseCount').textContent=String(courses.length);if(!courses.length){const p=document.createElement('p');p.className='empty';p.textContent='لم تنشئ أي دورة بعد. أضف دورتك الأولى.';list.append(p);return}courses.forEach((name,i)=>{const row=document.createElement('div');row.className='course';const title=document.createElement('span');title.textContent=name;const btn=document.createElement('button');btn.textContent='حذف';btn.setAttribute('aria-label','حذف '+name);btn.addEventListener('click',()=>{const items=readCourses();items.splice(i,1);localStorage.setItem(key,JSON.stringify(items));render()});row.append(title,btn);list.append(row)})}
 function show(which){document.querySelector('main').hidden=which!=='home';document.getElementById('panel').hidden=which==='home';document.getElementById('dashboard').hidden=which==='academy';document.getElementById('academyPanel').hidden=which!=='academy';window.scrollTo(0,0);if(which==='dashboard')render()}

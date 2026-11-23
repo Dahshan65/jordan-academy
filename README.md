@@ -1,4 +1,4 @@
-# Dahshan Academy — Prototype V1
+# Jordan Academy — Prototype V1
 
 العنوان المستهدف لاحقًا: academy.dahshansoft.com
 
@@ -16,3 +16,6 @@
 
 ## المرحلة التالية
 نقل الواجهة إلى Next.js App Router وربط Supabase Auth وPostgreSQL مع سياسات RLS للأكاديميات، ثم إنشاء CRUD حقيقي للدورات والطلاب والدروس. راجع سياسات الصلاحيات قبل النشر العام.
+
+## الخط العربي
+تم استخدام خط Noto Naskh Arabic من Google Fonts، مع خطوط نسخ بديلة عند عدم توفر الاتصال.
