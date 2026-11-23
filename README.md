@@ -1,15 +1,13 @@
-# Jordan Academy — V3
-موقع تعليمي عربي شخصي بإدارة دورات ودروس تجريبية.
+# Jordan Academy V4
 
-## التشغيل
-افتح `index.html` محليًا، أو ارفع الملفات الأربعة إلى جذر مستودع GitHub Pages.
+Public courses + private administrator. GitHub Pages frontend + Supabase database/auth.
 
-## الميزات
-- إضافة وحذف دورات مع تصنيف ووصف.
-- إضافة وحذف دروس نصية أو روابط فيديو وPDF.
-- نشر تجريبي يظهر في الصفحة الرئيسية **على نفس المتصفح فقط**.
-- استيراد وتصدير نسخة احتياطية JSON.
-- خط Noto Naskh Arabic.
+1. Create a Supabase project.
+2. Run `schema.sql` in Supabase SQL Editor.
+3. In Authentication > Users, create an admin user with a strong password.
+4. In SQL Editor, run `insert into public.academy_admins(user_id) values ('YOUR_AUTH_USER_UUID');` using that user's UUID.
+5. Paste your Project URL and **publishable/anon** key into `config.js` (never a service_role or secret key).
+6. Upload `index.html`, `style.css`, `app.js`, `config.js` to GitHub Pages. Keep `schema.sql` for reference.
+7. Visit `#admin` to log in. Published courses are visible to everyone.
 
-## تنبيه أمني مهم
-هذه نسخة ثابتة لا تحتوي على تسجيل دخول أو خادم أو قاعدة بيانات. لوحة الإدارة متاحة لأي زائر، لكن بياناته تحفظ محليًا في متصفحه فقط. لا ترفع معلومات خاصة أو بيانات طلاب، ولا تستخدمها لبيع الدورات. يجب تطوير مصادقة وصلاحيات وقاعدة بيانات ونظام تخزين آمن قبل النشر التجاري.
+IMPORTANT: Existing V3 localStorage courses are NOT automatically migrated. Export a V3 backup before overwriting files. The V4 backup import feature is disabled; migrate courses manually for now. This version does not support private paid videos or file upload; published URLs are public. Supabase auth and RLS enforce admin-only writes.
