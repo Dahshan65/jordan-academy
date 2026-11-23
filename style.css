@@ -1,13 +1,23 @@
 
+/* =========================================
+   JORDAN ACADEMY - COMPLETE STYLESHEET
+   Desktop + Tablet + Mobile
+   ========================================= */
+
 :root {
   font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
   color: #102b46;
   background: #f5f8fc;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  scroll-padding-top: 20px;
 }
 
 body {
@@ -15,7 +25,29 @@ body {
   font-family: "Noto Naskh Arabic", "Amiri", "Traditional Arabic", serif;
   font-size: 18px;
   line-height: 1.7;
+  overflow-x: hidden;
 }
+
+[hidden] {
+  display: none !important;
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* =========================================
+   HEADER AND NAVIGATION
+   ========================================= */
 
 header {
   background: white;
@@ -23,10 +55,10 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 18px max(5%, calc((100% - 1150px)/2));
+  padding: 18px max(5%, calc((100% - 1150px) / 2));
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 20;
   box-shadow: 0 2px 16px #122d4610;
 }
 
@@ -45,6 +77,7 @@ header {
 
 nav {
   display: flex;
+  align-items: center;
   gap: 25px;
 }
 
@@ -52,7 +85,16 @@ nav a {
   color: #36516b;
   text-decoration: none;
   font-size: 16px;
+  transition: color 0.2s ease;
 }
+
+nav a:hover {
+  color: #0d9488;
+}
+
+/* =========================================
+   BUTTONS
+   ========================================= */
 
 button,
 .outline {
@@ -66,10 +108,23 @@ button,
   font-weight: bold;
   text-decoration: none;
   display: inline-block;
+  text-align: center;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 button:hover {
   background: #08776f;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .small {
@@ -82,12 +137,28 @@ button:hover {
   border: 1px solid #b6cbd6;
 }
 
+.outline:hover {
+  background: #eaf4f6;
+}
+
+/* =========================================
+   HERO
+   ========================================= */
+
 .hero {
   padding: 110px 8% 95px;
   text-align: center;
   background:
-    radial-gradient(circle at 15% 15%, #d5f8f0, transparent 38%),
-    linear-gradient(135deg, #f8fcff, #e8f2f8);
+    radial-gradient(
+      circle at 15% 15%,
+      #d5f8f0,
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fcff,
+      #e8f2f8
+    );
 }
 
 .eyebrow {
@@ -119,11 +190,21 @@ button:hover {
   color: #547086;
 }
 
+/* =========================================
+   HERO ACTIONS
+   ========================================= */
+
 .actions {
   display: flex;
   justify-content: center;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
   flex-wrap: wrap;
+}
+
+.actions > a,
+.actions > button {
+  margin: 0;
 }
 
 .note {
@@ -131,6 +212,10 @@ button:hover {
   font-size: 16px;
   margin-top: 24px;
 }
+
+/* =========================================
+   METRICS
+   ========================================= */
 
 .metrics {
   display: flex;
@@ -159,6 +244,10 @@ button:hover {
   font-size: 16px;
 }
 
+/* =========================================
+   CONTENT SECTIONS
+   ========================================= */
+
 section#features,
 section#pricing,
 section#courses {
@@ -175,6 +264,10 @@ h2 {
 .muted {
   color: #71899a;
 }
+
+/* =========================================
+   CARDS
+   ========================================= */
 
 .cards {
   display: grid;
@@ -205,6 +298,10 @@ h2 {
   line-height: 2;
 }
 
+/* =========================================
+   HIGHLIGHT
+   ========================================= */
+
 .highlight {
   max-width: 1100px;
   margin: 35px auto;
@@ -231,6 +328,10 @@ h2 {
   font-size: 13px;
 }
 
+/* =========================================
+   PRICING
+   ========================================= */
+
 .pricing {
   grid-template-columns: repeat(3, 1fr);
 }
@@ -247,12 +348,20 @@ h2 {
   outline: 2px solid #0d9488;
 }
 
+/* =========================================
+   FOOTER
+   ========================================= */
+
 footer {
   text-align: center;
   padding: 32px;
   color: #73899a;
   border-top: 1px solid #e1eaf0;
 }
+
+/* =========================================
+   ADMIN PANEL
+   ========================================= */
 
 .panelhead {
   display: flex;
@@ -276,6 +385,10 @@ footer {
   padding: 0 20px;
 }
 
+/* =========================================
+   STATISTICS
+   ========================================= */
+
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -297,6 +410,10 @@ footer {
 .stats span {
   color: #6e8494;
 }
+
+/* =========================================
+   FORMS
+   ========================================= */
 
 .tool {
   margin-top: 20px;
@@ -324,6 +441,17 @@ input {
   min-width: 0;
 }
 
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #0d948855;
+  border-color: #0d9488;
+}
+
+/* =========================================
+   COURSES
+   ========================================= */
+
 .courses {
   margin-top: 20px;
 }
@@ -348,7 +476,9 @@ input {
   color: #8094a2;
 }
 
-/* Admin dashboard */
+/* =========================================
+   ADMIN DASHBOARD
+   ========================================= */
 
 #dashboard input,
 #dashboard select,
@@ -444,10 +574,13 @@ input {
   display: none;
 }
 
-/* Student panel */
+/* =========================================
+   STUDENT PANEL
+   ========================================= */
 
 #studentPanel {
   direction: rtl;
+  max-width: 100%;
 }
 
 #studentPanel input {
@@ -459,7 +592,9 @@ input {
   font-family: inherit;
 }
 
-/* Red student logout button */
+/* =========================================
+   STUDENT LOGOUT
+   ========================================= */
 
 #studentLogoutBtn,
 #studentPanel #studentLogoutBtn,
@@ -485,66 +620,310 @@ input {
   cursor: wait;
 }
 
-/* Responsive */
+/* =========================================
+   TABLETS
+   ========================================= */
 
-@media (max-width: 750px) {
-  header {
-    padding: 14px 4%;
-  }
-
-  nav {
-    display: none;
-  }
-
-  .logo {
-    font-size: 17px;
-  }
-
-  .hero {
-    padding: 75px 6%;
-  }
-
-  .hero p {
-    font-size: 16px;
-  }
-
-  .metrics {
-    gap: 22px;
-  }
+@media (max-width: 1000px) {
 
   .cards {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .metrics {
+    gap: 35px;
+  }
+
+  header {
+    padding-left: 4%;
+    padding-right: 4%;
+  }
+
+  nav {
+    gap: 15px;
+  }
+
+}
+
+/* =========================================
+   MOBILE DESIGN
+   ========================================= */
+
+@media (max-width: 750px) {
+
+  /* HEADER */
+
+  header {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 18px !important;
+    padding: 22px 16px !important;
+    text-align: center !important;
+  }
+
+  /* LOGO */
+
+  .logo {
+    display: block !important;
+    font-size: 27px !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+  }
+
+  /* NAVIGATION */
+
+  header nav,
+  nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  nav a {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 46px !important;
+    padding: 9px 15px !important;
+    background: #f0f7fa !important;
+    color: #143954 !important;
+    border: 1px solid #d8e6ed !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  nav a:hover,
+  nav a:focus-visible {
+    background: #d9f3ef !important;
+    color: #08776f !important;
+  }
+
+  /* HERO */
+
+  .hero {
+    padding: 48px 20px 55px !important;
+  }
+
+  .hero h1 {
+    font-size: clamp(30px, 8vw, 43px) !important;
+    line-height: 1.55 !important;
+    margin: 14px 0 20px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .hero p {
+    font-size: 17px !important;
+    line-height: 1.9 !important;
+    margin-bottom: 28px !important;
+  }
+
+  /* HERO BUTTONS */
+
+  .hero .actions,
+  .actions {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: center !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 340px !important;
+    margin: 25px auto !important;
+  }
+
+  .hero .actions > *,
+  .actions > button,
+  .actions > a {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-height: 54px !important;
+    margin: 0 !important;
+    padding: 12px 18px !important;
+    border-radius: 14px !important;
+    font-size: 18px !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    white-space: normal !important;
+  }
+
+  /* METRICS */
+
+  .metrics {
+    gap: 22px !important;
+    padding: 25px 15px !important;
+  }
+
+  .metrics strong {
+    font-size: 23px;
+  }
+
+  /* CONTENT */
+
+  section#features,
+  section#pricing,
+  section#courses {
+    padding: 45px 18px !important;
+  }
+
+  h2 {
+    font-size: 28px;
+    line-height: 1.5;
+  }
+
+  /* CARDS */
+
+  .cards {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+
+  .cards article,
+  .tool,
+  .sample {
+    padding: 20px !important;
+  }
+
+  /* HIGHLIGHT */
+
   .highlight {
-    margin: 20px 4%;
-    grid-template-columns: 1fr;
-    padding: 28px;
+    grid-template-columns: 1fr !important;
+    margin: 20px 15px !important;
+    padding: 25px 20px !important;
   }
 
   .pricing {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
+
+  /* FORMS */
 
   .formrow {
-    flex-direction: column;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
   }
-}
 
-@media (max-width: 420px) {
-  .cards {
-    grid-template-columns: 1fr;
+  .formrow > * {
+    width: 100%;
   }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  /* STUDENT PANEL */
+
+  #studentPanel {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  #studentPanel input,
+  #studentPanel select {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  #studentPanel button {
+    min-height: 46px;
+    margin: 5px 0;
+  }
+
+  /* ADMIN WORKSPACE */
+
+  .workspace {
+    margin: 24px auto;
+    padding: 0 15px;
+  }
+
+  .panelhead {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  /* STATISTICS */
 
   .stats {
-    gap: 8px;
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 
   .stats div {
-    padding: 15px;
+    padding: 20px !important;
+  }
+
+  /* COURSE ROWS */
+
+  .course {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .courseHeading {
+    flex-wrap: wrap;
+  }
+
+  /* FOOTER */
+
+  footer {
+    padding: 26px 15px;
+    font-size: 15px;
+  }
+
+}
+
+/* =========================================
+   SMALL MOBILE PHONES
+   ========================================= */
+
+@media (max-width: 390px) {
+
+  header {
+    padding: 18px 12px !important;
+  }
+
+  nav {
+    gap: 10px !important;
+  }
+
+  nav a {
+    font-size: 15px !important;
+    padding: 8px 12px !important;
+  }
+
+  .hero {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .hero h1 {
+    font-size: 29px !important;
+  }
+
+  .hero p {
+    font-size: 16px !important;
   }
 
   .stats strong {
     font-size: 28px;
   }
+
 }
