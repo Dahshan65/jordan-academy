@@ -2,74 +2,73 @@
 'use strict';
 
 /*
- Jordan Academy
- Student Registration and Login
- Shared Supabase authentication
+ Jordan Academy - Student Authentication
+ Registration, Login, Logout
 */
 
 (function () {
+  const client =
+    window.supabase &&
+    window.JORDAN_SUPABASE_URL &&
+    window.JORDAN_SUPABASE_ANON_KEY
+      ? window.supabase.createClient(
+          window.JORDAN_SUPABASE_URL,
+          window.JORDAN_SUPABASE_ANON_KEY
+        )
+      : null;
 
-  // Use the existing Supabase client from app.js.
-  if (typeof db === 'undefined' || !db) {
-    console.error('Supabase client is unavailable');
+  if (!client) {
+    console.error('Supabase is not configured');
     return;
   }
 
-  const $s = id => document.getElementById(id);
+  const $student = id => document.getElementById(id);
 
-  const HOME_URL =
-    'https://dahshan65.github.io/jordan-academy/';
-
-  let loginMode = false;
-  let busy = false;
-
-  function make(tag, text, className = '') {
-    const element = document.createElement(tag);
-
-    if (text !== undefined) {
-      element.textContent = text;
-    }
-
-    if (className) {
-      element.className = className;
-    }
-
-    return element;
+  function notify(text) {
+    const status = $student('studentStatus');
+    if (status) status.textContent = text;
   }
 
   function makeInput(type, placeholder, autocomplete) {
     const input = document.createElement('input');
-
     input.type = type;
     input.placeholder = placeholder;
     input.autocomplete = autocomplete;
     input.required = true;
-
+    input.style.width = '100%';
+    input.style.boxSizing = 'border-box';
     input.style.marginBottom = '12px';
-
+    input.style.padding = '12px';
+    input.style.border = '1px solid #cbd5e1';
+    input.style.borderRadius = '8px';
     return input;
   }
 
   function createStudentPanel() {
-
-    if ($s('studentPanel')) return;
+    if ($student('studentPanel')) return;
 
     const main = document.querySelector('main');
-    if (!main) return;
 
-    const section = make('section');
+    if (!main) {
+      console.error('Main element not found');
+      return;
+    }
+
+    const section = document.createElement('section');
     section.id = 'studentPanel';
     section.className = 'panelBox';
-
-    section.style.maxWidth = '500px';
+    section.dir = 'rtl';
+    section.style.maxWidth = '520px';
     section.style.margin = '30px auto';
+    section.style.padding = '25px';
+    section.style.background = '#ffffff';
+    section.style.borderRadius = '14px';
+    section.style.boxShadow =
+      '0 4px 20px rgba(0,0,0,0.08)';
 
-    const heading = make('h2', 'إنشاء حساب طالب');
-
-    const description = make(
-      'p',
-      'أنشئ حسابك للوصول إلى خدمات Jordan Academy.'
-    );
+    const heading = document.createElement('h2');
+    heading.textContent = 'حساب الطالب';
+    heading.style.color = '#12385b';
 
     const form = document.createElement('form');
     form.id = 'studentForm';
@@ -79,7 +78,6 @@
       'الاسم الكامل',
       'name'
     );
-
     name.maxLength = 100;
 
     const email = makeInput(
@@ -93,7 +91,6 @@
       'كلمة المرور (6 أحرف على الأقل)',
       'new-password'
     );
-
     password.minLength = 6;
 
     const confirm = makeInput(
@@ -101,50 +98,56 @@
       'تأكيد كلمة المرور',
       'new-password'
     );
-
     confirm.minLength = 6;
 
-    const submit = make(
-      'button',
-      'إنشاء حساب جديد'
-    );
-
+    const submit = document.createElement('button');
     submit.type = 'submit';
+    submit.textContent = 'إنشاء حساب جديد';
+    submit.style.background = '#008c99';
+    submit.style.color = '#ffffff';
+    submit.style.padding = '12px 20px';
+    submit.style.border = 'none';
+    submit.style.borderRadius = '8px';
+    submit.style.cursor = 'pointer';
 
-    const toggle = make(
-      'button',
-      'لدي حساب بالفعل - تسجيل الدخول'
-    );
-
+    const toggle = document.createElement('button');
     toggle.type = 'button';
-    toggle.style.marginRight = '10px';
+    toggle.textContent =
+      'لدي حساب بالفعل - تسجيل الدخول';
+    toggle.style.display = 'block';
+    toggle.style.marginTop = '12px';
+    toggle.style.background = '#087d8b';
+    toggle.style.color = '#ffffff';
+    toggle.style.padding = '12px 20px';
+    toggle.style.border = 'none';
+    toggle.style.borderRadius = '8px';
+    toggle.style.cursor = 'pointer';
 
-    const logout = make(
-      'button',
-      'تسجيل الخروج'
-    );
-
+    // Logout button
+    const logout = document.createElement('button');
+    logout.id = 'studentLogoutBtn';
     logout.type = 'button';
+    logout.textContent = 'تسجيل الخروج';
+    logout.style.background = '#dc3545';
+    logout.style.color = '#ffffff';
+    logout.style.padding = '12px 24px';
+    logout.style.border = 'none';
+    logout.style.borderRadius = '8px';
+    logout.style.cursor = 'pointer';
+    logout.style.marginTop = '15px';
     logout.hidden = true;
 
-    const status = make('p', '');
+    const status = document.createElement('p');
     status.id = 'studentStatus';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
+    status.style.marginTop = '18px';
+    status.style.lineHeight = '1.9';
+    status.style.color = '#12385b';
 
-    function notify(text) {
-      status.textContent = text;
-    }
-
-    function setBusy(value) {
-      busy = value;
-      submit.disabled = value;
-      toggle.disabled = value;
-      logout.disabled = value;
-    }
+    let loginMode = false;
 
     function updateMode() {
-
       heading.textContent = loginMode
         ? 'تسجيل دخول الطالب'
         : 'إنشاء حساب طالب';
@@ -164,206 +167,148 @@
         : 'إنشاء حساب جديد';
 
       toggle.textContent = loginMode
-        ? 'إنشاء حساب جديد'
+        ? 'ليس لدي حساب - إنشاء حساب'
         : 'لدي حساب بالفعل - تسجيل الدخول';
 
       notify('');
     }
 
     toggle.addEventListener('click', () => {
-      if (busy) return;
-
       loginMode = !loginMode;
       updateMode();
     });
 
     form.addEventListener('submit', async event => {
-
       event.preventDefault();
-
-      if (busy) return;
 
       const userEmail = email.value.trim();
       const userPassword = password.value;
 
-      if (!loginMode) {
-
-        if (!name.value.trim()) {
-          notify('يرجى إدخال الاسم الكامل.');
-          return;
-        }
-
-        if (userPassword !== confirm.value) {
-          notify('كلمتا المرور غير متطابقتين.');
-          return;
-        }
-
-        if (userPassword.length < 6) {
-          notify('كلمة المرور قصيرة جدًا.');
-          return;
-        }
+      if (
+        !loginMode &&
+        userPassword !== confirm.value
+      ) {
+        notify('كلمتا المرور غير متطابقتين.');
+        return;
       }
 
-      setBusy(true);
-      notify('جارٍ تنفيذ الطلب...');
+      submit.disabled = true;
+      notify('يرجى الانتظار...');
 
       try {
-
         if (loginMode) {
-
           const { error } =
-            await db.auth.signInWithPassword({
+            await client.auth.signInWithPassword({
               email: userEmail,
               password: userPassword
             });
 
           if (error) throw error;
 
-          password.value = '';
-
           notify('تم تسجيل الدخول بنجاح.');
-
-          await updateSession();
-
         } else {
-
-          // Do not create another account while
-          // an existing user is signed in.
-          const { data: sessionData } =
-            await db.auth.getSession();
-
-          if (sessionData.session) {
-            throw new Error(
-              'يرجى تسجيل الخروج من الحساب الحالي أولًا.'
-            );
-          }
-
           const { data, error } =
-            await db.auth.signUp({
-
+            await client.auth.signUp({
               email: userEmail,
               password: userPassword,
-
               options: {
-
                 data: {
                   full_name: name.value.trim()
                 },
-
-                emailRedirectTo: HOME_URL
-
+                emailRedirectTo:
+                  'https://dahshan65.github.io/jordan-academy/'
               }
-
             });
 
           if (error) throw error;
 
-          password.value = '';
-          confirm.value = '';
-
           if (data.session) {
-
             notify(
-              'تم إنشاء الحساب وتسجيل الدخول.'
+              'تم إنشاء الحساب وتسجيل الدخول بنجاح.'
             );
-
-            await updateSession();
-
           } else {
-
             notify(
-              'تم استلام طلب التسجيل. ' +
-              'تحقق من بريدك الإلكتروني ' +
-              'لتأكيد الحساب قبل تسجيل الدخول.'
+              'تم استلام طلب التسجيل. تحقق من بريدك الإلكتروني لتأكيد الحساب قبل تسجيل الدخول.'
             );
-
           }
-
         }
 
+        password.value = '';
+        confirm.value = '';
+
+        await updateSession();
+
       } catch (error) {
-
-        notify(
-          'تعذرت العملية: ' +
-          (error.message || 'خطأ غير معروف')
-        );
-
+        notify('تعذرت العملية: ' + error.message);
       } finally {
-
-        setBusy(false);
-
+        submit.disabled = false;
       }
-
     });
 
     logout.addEventListener('click', async () => {
-
-      if (busy) return;
-
-      setBusy(true);
+      logout.disabled = true;
+      notify('جارٍ تسجيل الخروج...');
 
       try {
-
-        const { error } = await db.auth.signOut();
+        const { error } = await client.auth.signOut();
 
         if (error) throw error;
 
         loginMode = true;
 
+        password.value = '';
+        confirm.value = '';
+
         await updateSession();
 
         notify('تم تسجيل الخروج بنجاح.');
 
-      } catch (error) {
+        window.location.hash = '#students';
 
+        // Notify other site components to refresh.
+        window.dispatchEvent(
+          new Event('student-session-changed')
+        );
+
+      } catch (error) {
         notify(
           'تعذر تسجيل الخروج: ' + error.message
         );
-
       } finally {
-
-        setBusy(false);
-
+        logout.disabled = false;
       }
-
     });
 
     async function updateSession() {
-
-      const { data, error } = await db.auth.getUser();
+      const { data, error } =
+        await client.auth.getUser();
 
       const user = !error ? data.user : null;
 
       if (user) {
-
         form.hidden = true;
         toggle.hidden = true;
         logout.hidden = false;
 
-        heading.textContent =
-          'مرحبًا بك في Jordan Academy';
+        heading.textContent = 'لوحة الطالب';
 
-        description.textContent =
-          'أنت مسجل الدخول حاليًا.';
+        const fullName =
+          user.user_metadata?.full_name ||
+          user.email;
 
         notify(
-          'البريد الإلكتروني: ' +
-          (user.email || '')
+          'مرحبًا بك، ' + fullName +
+          '\nالبريد الإلكتروني: ' + user.email
         );
 
+        status.style.whiteSpace = 'pre-line';
       } else {
-
         form.hidden = false;
         toggle.hidden = false;
         logout.hidden = true;
 
-        description.textContent =
-          'أنشئ حسابًا جديدًا أو سجل الدخول.';
-
         updateMode();
-
       }
-
     }
 
     form.append(
@@ -376,7 +321,6 @@
 
     section.append(
       heading,
-      description,
       form,
       toggle,
       logout,
@@ -385,11 +329,15 @@
 
     main.append(section);
 
-    function updateVisibility() {
+    client.auth.onAuthStateChange(() => {
+      setTimeout(updateSession, 0);
+    });
 
+    updateSession();
+
+    function updateVisibility() {
       section.hidden =
         window.location.hash !== '#students';
-
     }
 
     window.addEventListener(
@@ -397,31 +345,15 @@
       updateVisibility
     );
 
-    db.auth.onAuthStateChange(() => {
-
-      setTimeout(() => {
-        updateSession();
-      }, 0);
-
-    });
-
-    updateMode();
     updateVisibility();
-    updateSession();
-
   }
 
   if (document.readyState === 'loading') {
-
     document.addEventListener(
       'DOMContentLoaded',
       createStudentPanel
     );
-
   } else {
-
     createStudentPanel();
-
   }
-
 })();
