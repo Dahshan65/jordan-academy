@@ -7,3 +7,6 @@ button,input{font-family:inherit}
 nav a,.eyebrow,.metrics span,.note{font-size:16px}
 .hero h1{line-height:1.45}
 .cards p,.highlight p,.tool p{line-height:2}
+/* Jordan Academy: public learning sections */
+section#courses{padding:70px 7%;max-width:1200px;margin:auto}
+section#features{padding:70px 7%;max-width:1200px;margin:auto}
