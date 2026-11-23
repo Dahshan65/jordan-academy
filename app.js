@@ -683,6 +683,7 @@ async function init() {
 
   await checkAdmin();
   await loadCourses();
+  scheduleStudentLessons();
 
   db.auth.onAuthStateChange(() => {
     setTimeout(async () => {
@@ -692,6 +693,111 @@ async function init() {
   });
 
   route();
+}
+
+
+/* =========================
+   STUDENT ENROLLED LESSONS
+   Access is enforced by Supabase RLS.
+========================= */
+
+async function renderStudentLessons() {
+  const panel = document.getElementById('studentPanel');
+  if (!panel || !db) return;
+
+  let area = document.getElementById('enrolledLessonsArea');
+  if (!area) {
+    area = el('section', 'panelBox');
+    area.id = 'enrolledLessonsArea';
+    area.style.marginTop = '20px';
+    panel.append(area);
+  }
+
+  const { data: authData, error: authError } = await db.auth.getUser();
+  if (authError || !authData?.user) {
+    area.replaceChildren();
+    area.hidden = true;
+    return;
+  }
+  area.hidden = false;
+  area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'جارٍ تحميل الدروس...'));
+
+  const { data: enrollments, error: enrollError } = await db
+    .from('enrollments')
+    .select('course_id,status')
+    .eq('student_id', authData.user.id)
+    .eq('status', 'active');
+
+  if (enrollError) {
+    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'تعذر قراءة الاشتراكات: ' + enrollError.message));
+    return;
+  }
+
+  const ids = [...new Set((enrollments || []).map(e => e.course_id))];
+  if (!ids.length) {
+    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'ليس لديك اشتراك نشط حاليًا.'));
+    return;
+  }
+
+  const [courseResult, lessonResult] = await Promise.all([
+    db.from('courses').select('id,title').in('id', ids),
+    db.from('lessons')
+      .select('id,course_id,title,description,content_type,content_url,content_text,lesson_order,is_free')
+      .in('course_id', ids)
+      .order('lesson_order', { ascending: true })
+  ]);
+
+  if (courseResult.error || lessonResult.error) {
+    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted',
+      'تعذر تحميل الدروس: ' + (courseResult.error?.message || lessonResult.error?.message)));
+    return;
+  }
+
+  area.replaceChildren(el('h3', '', 'دروس دوراتي'));
+  for (const course of courseResult.data || []) {
+    const group = el('div', 'editorCourse');
+    group.append(el('h4', '', course.title));
+    const lessons = (lessonResult.data || []).filter(l => l.course_id === course.id);
+    if (!lessons.length) {
+      group.append(el('p', 'muted', 'لم تُضف دروس لهذه الدورة بعد.'));
+    }
+    for (const lesson of lessons) {
+      const row = el('div', 'catalogLesson');
+      row.append(el('strong', '', lesson.title));
+      if (lesson.description) row.append(el('p', 'muted', lesson.description));
+      if (lesson.content_text) row.append(el('p', '', lesson.content_text));
+      const url = validHttps(lesson.content_url);
+      if (url) {
+        const a = el('a', '', lesson.content_type === 'video' ? 'مشاهدة الفيديو' : 'فتح ملف الدرس');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        row.append(a);
+      }
+      group.append(row);
+    }
+    area.append(group);
+  }
+}
+
+function scheduleStudentLessons() {
+  if (window.location.hash !== '#students') return;
+  // students.js may create its panel after app.js has initialized.
+  if (document.getElementById('studentPanel')) {
+    renderStudentLessons();
+  } else {
+    window.setTimeout(() => {
+      if (document.getElementById('studentPanel')) renderStudentLessons();
+    }, 350);
+  }
+}
+
+window.addEventListener('hashchange', scheduleStudentLessons);
+window.addEventListener('DOMContentLoaded', scheduleStudentLessons);
+if (db) {
+  db.auth.onAuthStateChange(() => {
+    window.setTimeout(scheduleStudentLessons, 0);
+  });
 }
 
 init();
