@@ -1,10 +1,455 @@
-<!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b46"><meta name="description" content="Jordan Academy — دورات تعليمية في الخط العربي والمواد المدرسية، ودروس وتمارين واختبارات."><title>Jordan Academy | أكاديمية الأردن</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
-<body><header><a class="logo" href="#home">✦ Jordan <span>Academy</span></a><nav><a href="#courses">الدورات</a><a href="#features">مميزات التعلم</a><a href="#about">عن الأكاديمية</a></nav><a class="small" href="#admin" id="adminLink">دخول المدير</a></header>
-<main id="home"><section class="hero"><div class="eyebrow">Jordan Academy | أكاديمية الأردن</div><h1>تعلّم بثقة،<br><em>وتقدّم بخطوات ثابتة.</em></h1><p>دروس منظمة في الخط العربي واللغة العربية والمواد المدرسية، مع تدريبات واختبارات تساعدك على الفهم والإتقان.</p><div class="actions"><a class="outline" href="#courses">تصفّح الدورات</a><a class="outline" href="#features">اكتشف أسلوب التعلم</a></div><div class="note">الدورات متاحة للعرض عند نشرها — الدفع غير متاح حاليًا</div></section>
-<section class="metrics"><div><strong>✎</strong><span>الخط العربي</span></div><div><strong>📖</strong><span>المواد المدرسية</span></div><div><strong>✓</strong><span>تدريبات واختبارات</span></div></section>
-<section id="courses"><h2>المجالات التعليمية</h2><p class="muted">محتوى متنوع للمهارات والمواد الدراسية، وستُضاف الدورات تدريجيًا.</p><div id="publishedCatalog" class="cards"></div><div class="cards"><article><b>✎</b><h3>الخط العربي</h3><p>تحسين الكتابة بخط النسخ وتعلّم مهارات الكتابة الجميلة.</p></article><article><b>أ</b><h3>اللغة العربية</h3><p>القراءة والكتابة والنحو والتطبيقات اللغوية.</p></article><article><b>▣</b><h3>دروس مدرسية</h3><p>شروحات منظمة للمواد والمراحل الدراسية المختلفة.</p></article><article><b>✓</b><h3>مراجعات واختبارات</h3><p>أسئلة وتدريبات للمراجعة وقياس الفهم.</p></article></div></section>
-<section id="features"><h2>تجربة تعلم واضحة</h2><p class="muted">تعلم حسب وقتك، وراجع ما تحتاج إليه بسهولة.</p><div class="cards"><article><b>▤</b><h3>دروس مرتبة</h3><p>وحدات ودروس بتسلسل واضح.</p></article><article><b>▶</b><h3>محتوى مرئي</h3><p>فيديوهات تعليمية عند توفر الدورات.</p></article><article><b>✓</b><h3>تمارين تفاعلية</h3><p>تدريبات واختبارات لدعم الفهم.</p></article><article><b>◉</b><h3>متابعة التقدم</h3><p>ميزة مخطط لإضافتها في النسخ القادمة.</p></article></div></section>
-<section id="about" class="highlight"><div><div class="eyebrow">تعليم متنوع في مكان واحد</div><h2>Jordan Academy</h2><p>أكاديمية تعليمية مستقلة تقدم دورات الخط العربي ودروسًا للطلاب في مواد مدرسية متعددة، بهوية واحدة واضحة دون أسماء أشخاص في واجهة الموقع.</p><a class="outline" href="#courses">استعرض المجالات</a></div><div class="sample"><span>مجال تعليمي</span><h3>تحسين الكتابة بخط النسخ</h3><p>تدريب عملي وتدرج في المهارات — محتوى تجريبي قيد الإعداد.</p></div></section></main>
-<section id="panel" hidden><div class="panelhead"><button class="ghost" onclick="show('home')">→ العودة للموقع</button><span id="cloudStatus">جاري التحقق من الاتصال...</span></div><div id="loginBox" class="workspace"><h2>دخول مدير الأكاديمية</h2><p class="muted" id="loginMessage">لا يمكن إدارة المحتوى إلا بعد تسجيل الدخول بحساب المدير.</p><form id="loginForm" class="tool"><label>البريد الإلكتروني<input id="adminEmail" type="email" autocomplete="username" required></label><label>كلمة المرور<input id="adminPassword" type="password" autocomplete="current-password" required></label><button type="submit">تسجيل الدخول</button></form><button id="logoutBtn" hidden type="button">تسجيل الخروج</button></div><div id="dashboard" class="workspace" hidden><h2>إدارة دورات Jordan Academy</h2><p class="muted">أنشئ الدورات والدروس واحفظها في قاعدة البيانات؛ ستظهر الدورات المنشورة لجميع الزوار.</p><div class="stats"><div><strong id="courseCount">0</strong><span>الدورات</span></div><div><strong id="lessonCount">0</strong><span>الدروس</span></div><div><strong>سحابي</strong><span>حالة النظام</span></div></div><div class="tool"><h3>إضافة دورة جديدة</h3><form id="courseForm"><label for="courseTitle">اسم الدورة</label><input id="courseTitle" required maxlength="90" placeholder="اللغة العربية للصف الحادي عشر"><label for="courseCategory">المجال</label><select id="courseCategory"><option>الخط العربي</option><option>اللغة العربية</option><option>المواد المدرسية</option><option>مراجعات واختبارات</option><option>أخرى</option></select><label for="courseDescription">وصف الدورة</label><textarea id="courseDescription" maxlength="500" rows="3" placeholder="ماذا سيتعلم الطالب؟"></textarea><button type="submit">+ إنشاء الدورة</button></form></div><div class="tool"><h3>الدورات والدروس</h3><div id="courseList" class="courses"></div></div><div class="tool" hidden><h3>نسخة احتياطية تجريبية</h3><p class="muted">صدّر بياناتك إلى ملف JSON أو استورد نسخة سابقة. لا تحفظ كلمات مرور أو بيانات شخصية هنا.</p><div class="formrow"><button type="button" id="exportBtn">تنزيل نسخة JSON</button><label class="importLabel">استيراد JSON <input type="file" id="importFile" accept="application/json,.json"></label></div></div></div><div id="academyPanel" class="workspace" hidden></div></section>
-<footer>© Jordan Academy — أكاديمية الأردن | نسخة تجريبية</footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script><script src="config.js"></script><script src="app.js"></script></body></html>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Jordan Academy | أكاديمية الأردن</title>
+
+  <meta name="description"
+        content="Jordan Academy منصة تعليمية للدورات والدروس في الخط العربي والمواد المدرسية.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Noto Naskh Arabic", serif;
+      background: #f5f8fc;
+      color: #183153;
+      line-height: 1.8;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    header {
+      background: #123456;
+      color: white;
+      padding: 20px;
+    }
+
+    .topbar {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 18px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg,#123456,#167c91);
+      color: white;
+      padding: 45px 25px;
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      margin: 0;
+    }
+
+    .hero p {
+      font-size: 20px;
+    }
+
+    .btn, button {
+      background: #087f8c;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 19px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 16px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    button:hover, .btn:hover {
+      background: #075d68;
+    }
+
+    .danger {
+      background: #b63838;
+    }
+
+    .danger:hover {
+      background: #922929;
+    }
+
+    .sectionTitle {
+      margin-top: 35px;
+      font-size: 27px;
+    }
+
+    .catalog, #courseList {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+      gap: 18px;
+    }
+
+    .catalog article,
+    .editorCourse,
+    .panelBox {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      box-shadow: 0 3px 15px rgba(0,0,0,.06);
+    }
+
+    .panelBox {
+      max-width: 650px;
+      margin: 25px auto;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px;
+      border: 1px solid #ccd6e0;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    label input[type="checkbox"] {
+      width: auto;
+    }
+
+    form button {
+      margin-top: 10px;
+    }
+
+    .formrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .courseHeading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lessonRow, .catalogLesson {
+      padding: 12px;
+      border-bottom: 1px solid #e5eaf0;
+    }
+
+    .lessonRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .lessonForm {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #e5eaf0;
+    }
+
+    .stats {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 140px;
+      background: #e9f4f7;
+      padding: 15px;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 30px;
+    }
+
+    .muted {
+      color: #68798b;
+    }
+
+    .status {
+      text-align: center;
+      padding: 10px;
+    }
+
+    footer {
+      background: #123456;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      margin-top: 60px;
+    }
+
+    @media(max-width:600px) {
+      .hero h1 {
+        font-size: 27px;
+      }
+
+      .hero p {
+        font-size: 17px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="topbar">
+      <div class="brand">Jordan Academy</div>
+
+      <nav>
+        <a href="#home">الرئيسية</a>
+        <a href="#admin">إدارة الأكاديمية</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- الصفحة الرئيسية -->
+    <section id="home">
+
+      <div class="hero">
+        <h1>مرحبًا بكم في Jordan Academy</h1>
+
+        <p>
+          منصة تعليمية للدورات المتخصصة
+          في الخط العربي والمواد المدرسية
+          ومجالات المعرفة المختلفة.
+        </p>
+
+        <a href="#courses" class="btn">
+          استكشف الدورات
+        </a>
+      </div>
+
+      <h2 id="courses" class="sectionTitle">
+        الدورات التعليمية
+      </h2>
+
+      <div id="publishedCatalog" class="catalog">
+      </div>
+
+      <p class="status">
+        تعليم متميز، بأسلوب واضح وتفاعلي.
+      </p>
+
+    </section>
+
+    <!-- لوحة الإدارة -->
+    <section id="panel" hidden>
+
+      <h1 style="text-align:center">
+        إدارة Jordan Academy
+      </h1>
+
+      <!-- تسجيل دخول المدير -->
+      <div id="loginBox" class="panelBox">
+
+        <h2>دخول المدير</h2>
+
+        <p id="loginMessage" class="muted">
+          أدخل البريد الإلكتروني وكلمة المرور.
+        </p>
+
+        <form id="loginForm">
+
+          <label>
+            البريد الإلكتروني
+            <input
+              type="email"
+              id="adminEmail"
+              autocomplete="username"
+              required>
+          </label>
+
+          <label>
+            كلمة المرور
+            <input
+              type="password"
+              id="adminPassword"
+              autocomplete="current-password"
+              required>
+          </label>
+
+          <button type="submit">
+            تسجيل الدخول
+          </button>
+
+        </form>
+
+      </div>
+
+      <!-- لوحة التحكم -->
+      <div id="dashboard" hidden>
+
+        <div class="panelBox">
+
+          <h2>لوحة التحكم</h2>
+
+          <div class="stats">
+
+            <div class="stat">
+              <strong id="courseCount">0</strong>
+              الدورات
+            </div>
+
+            <div class="stat">
+              <strong id="lessonCount">0</strong>
+              الدروس
+            </div>
+
+          </div>
+
+          <button id="logoutBtn" type="button">
+            تسجيل الخروج
+          </button>
+
+        </div>
+
+        <!-- إضافة دورة -->
+        <div class="panelBox">
+
+          <h2>إضافة دورة جديدة</h2>
+
+          <form id="courseForm">
+
+            <label>
+              عنوان الدورة
+              <input
+                id="courseTitle"
+                maxlength="90"
+                required>
+            </label>
+
+            <label>
+              تصنيف الدورة
+              <select id="courseCategory">
+                <option value="الخط العربي">
+                  الخط العربي
+                </option>
+                <option value="اللغة العربية">
+                  اللغة العربية
+                </option>
+                <option value="اللغة الإنجليزية">
+                  اللغة الإنجليزية
+                </option>
+                <option value="التاريخ">
+                  التاريخ
+                </option>
+                <option value="التربية الإسلامية">
+                  التربية الإسلامية
+                </option>
+                <option value="مواد مدرسية">
+                  مواد مدرسية
+                </option>
+                <option value="دورات أخرى">
+                  دورات أخرى
+                </option>
+              </select>
+            </label>
+
+            <label>
+              وصف الدورة
+              <textarea
+                id="courseDescription"
+                rows="4"
+                maxlength="500"></textarea>
+            </label>
+
+            <button type="submit">
+              إضافة الدورة
+            </button>
+
+          </form>
+
+        </div>
+
+        <!-- إدارة الدورات -->
+        <h2 class="sectionTitle">
+          إدارة الدورات والدروس
+        </h2>
+
+        <div id="courseList">
+        </div>
+
+      </div>
+
+    </section>
+
+    <p id="cloudStatus" class="status">
+      جارٍ الاتصال بقاعدة البيانات...
+    </p>
+
+  </main>
+
+  <footer>
+    <strong>Jordan Academy</strong>
+    <p>منصة تعليمية إلكترونية</p>
+    <small>© 2026 Jordan Academy</small>
+  </footer>
+
+  <!-- مكتبة Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- إعدادات قاعدة البيانات -->
+  <script src="config.js"></script>
+
+  <!-- وظائف الأكاديمية -->
+  <script src="app.js"></script>
+
+  <!-- استعادة كلمة المرور -->
+  <script src="recovery.js"></script>
+
+</body>
+</html>
