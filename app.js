@@ -61,6 +61,117 @@ const button = (label, fn, cls = '') => {
 const message = txt => alert(txt);
 
 /* =========================
+   VIDEO PLAYER
+========================= */
+
+function videoSource(raw) {
+  const url = validHttps(raw);
+  if (!url) return null;
+
+  const u = new URL(url);
+  const host = u.hostname.toLowerCase().replace(/^www\./, '');
+
+  let id = '';
+
+  if (host === 'youtube.com' || host === 'm.youtube.com') {
+    if (u.pathname === '/watch') {
+      id = u.searchParams.get('v') || '';
+    } else if (
+      u.pathname.startsWith('/shorts/') ||
+      u.pathname.startsWith('/embed/') ||
+      u.pathname.startsWith('/live/')
+    ) {
+      id = u.pathname.split('/')[2] || '';
+    }
+  } else if (host === 'youtu.be') {
+    id = u.pathname.split('/')[1] || '';
+  }
+
+  if (/^[a-zA-Z0-9_-]{11}$/.test(id)) {
+    return {
+      type: 'youtube',
+      url: 'https://www.youtube-nocookie.com/embed/' +
+        encodeURIComponent(id) +
+        '?rel=0'
+    };
+  }
+
+  if (/\.mp4(?:$|\?)/i.test(url)) {
+    return { type: 'mp4', url };
+  }
+
+  return null;
+}
+
+function appendLessonMedia(wrap, lesson) {
+  const url = validHttps(lesson.content_url);
+  if (!url) return;
+
+  const source =
+    lesson.content_type === 'video'
+      ? videoSource(url)
+      : null;
+
+  if (!source) {
+    const a = el(
+      'a',
+      '',
+      lesson.content_type === 'video'
+        ? 'فتح الفيديو'
+        : 'فتح ملف الدرس'
+    );
+
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    wrap.append(a);
+    return;
+  }
+
+  const toggle = button('▶ مشاهدة الفيديو داخل الأكاديمية', () => {
+    if (!player.hidden) {
+      player.replaceChildren();
+      player.hidden = true;
+      toggle.textContent = '▶ مشاهدة الفيديو داخل الأكاديمية';
+      return;
+    }
+
+    let media;
+
+    if (source.type === 'youtube') {
+      media = el('iframe');
+      media.src = source.url;
+      media.title = lesson.title || 'فيديو الدرس';
+      media.allow =
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      media.allowFullscreen = true;
+      media.referrerPolicy = 'strict-origin-when-cross-origin';
+    } else {
+      media = el('video');
+      media.src = source.url;
+      media.controls = true;
+      media.preload = 'metadata';
+      media.playsInline = true;
+      media.setAttribute('controlsList', 'nodownload');
+    }
+
+    media.style.cssText =
+      'display:block;width:100%;height:100%;border:0;';
+
+    player.replaceChildren(media);
+    player.hidden = false;
+    toggle.textContent = 'إغلاق الفيديو';
+  });
+
+  const player = el('div', 'academyVideoPlayer');
+  player.hidden = true;
+  player.style.cssText =
+    'position:relative;width:100%;max-width:800px;aspect-ratio:16/9;background:#091c30;border-radius:12px;overflow:hidden;margin-top:12px;';
+
+  wrap.append(toggle, player);
+}
+
+/* =========================
    NAVIGATION
 ========================= */
 
@@ -283,21 +394,7 @@ function render() {
         );
 
         if (l.content_url) {
-          const url = validHttps(l.content_url);
-
-          if (url) {
-            const a = el(
-              'a',
-              '',
-              'فتح الرابط'
-            );
-
-            a.href = url;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-
-            row.append(a);
-          }
+          appendLessonMedia(row, l);
         }
 
         row.append(
@@ -494,24 +591,7 @@ function renderCatalog() {
       );
 
       if (l.content_url) {
-        const url = validHttps(l.content_url);
-
-        if (url) {
-          const a = el(
-            'a',
-            '',
-            'فتح ' +
-            (l.content_type === 'video'
-              ? 'الفيديو'
-              : 'الملف')
-          );
-
-          a.href = url;
-          a.target = '_blank';
-          a.rel = 'noopener noreferrer';
-
-          row.append(a);
-        }
+        appendLessonMedia(row, l);
       }
 
       details.append(row);
@@ -695,7 +775,6 @@ async function init() {
   route();
 }
 
-
 /* =========================
    STUDENT ENROLLED LESSONS
    Access is enforced by Supabase RLS.
@@ -706,6 +785,7 @@ async function renderStudentLessons() {
   if (!panel || !db) return;
 
   let area = document.getElementById('enrolledLessonsArea');
+
   if (!area) {
     area = el('section', 'panelBox');
     area.id = 'enrolledLessonsArea';
@@ -713,90 +793,208 @@ async function renderStudentLessons() {
     panel.append(area);
   }
 
-  const { data: authData, error: authError } = await db.auth.getUser();
+  const {
+    data: authData,
+    error: authError
+  } = await db.auth.getUser();
+
   if (authError || !authData?.user) {
     area.replaceChildren();
     area.hidden = true;
     return;
   }
-  area.hidden = false;
-  area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'جارٍ تحميل الدروس...'));
 
-  const { data: enrollments, error: enrollError } = await db
+  area.hidden = false;
+
+  area.replaceChildren(
+    el('h3', '', 'دروس دوراتي'),
+    el('p', 'muted', 'جارٍ تحميل الدروس...')
+  );
+
+  const {
+    data: enrollments,
+    error: enrollError
+  } = await db
     .from('enrollments')
     .select('course_id,status')
     .eq('student_id', authData.user.id)
     .eq('status', 'active');
 
   if (enrollError) {
-    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'تعذر قراءة الاشتراكات: ' + enrollError.message));
+    area.replaceChildren(
+      el('h3', '', 'دروس دوراتي'),
+      el(
+        'p',
+        'muted',
+        'تعذر قراءة الاشتراكات: ' +
+        enrollError.message
+      )
+    );
     return;
   }
 
-  const ids = [...new Set((enrollments || []).map(e => e.course_id))];
+  const ids = [
+    ...new Set(
+      (enrollments || []).map(e => e.course_id)
+    )
+  ];
+
   if (!ids.length) {
-    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted', 'ليس لديك اشتراك نشط حاليًا.'));
+    area.replaceChildren(
+      el('h3', '', 'دروس دوراتي'),
+      el(
+        'p',
+        'muted',
+        'ليس لديك اشتراك نشط حاليًا.'
+      )
+    );
     return;
   }
 
-  const [courseResult, lessonResult] = await Promise.all([
-    db.from('courses').select('id,title').in('id', ids),
-    db.from('lessons')
-      .select('id,course_id,title,description,content_type,content_url,content_text,lesson_order,is_free')
-      .in('course_id', ids)
-      .order('lesson_order', { ascending: true })
-  ]);
+  const [courseResult, lessonResult] =
+    await Promise.all([
+      db
+        .from('courses')
+        .select('id,title')
+        .in('id', ids),
 
-  if (courseResult.error || lessonResult.error) {
-    area.replaceChildren(el('h3', '', 'دروس دوراتي'), el('p', 'muted',
-      'تعذر تحميل الدروس: ' + (courseResult.error?.message || lessonResult.error?.message)));
+      db
+        .from('lessons')
+        .select(
+          'id,course_id,title,description,content_type,content_url,content_text,lesson_order,is_free'
+        )
+        .in('course_id', ids)
+        .order('lesson_order', {
+          ascending: true
+        })
+    ]);
+
+  if (
+    courseResult.error ||
+    lessonResult.error
+  ) {
+    area.replaceChildren(
+      el('h3', '', 'دروس دوراتي'),
+      el(
+        'p',
+        'muted',
+        'تعذر تحميل الدروس: ' +
+        (
+          courseResult.error?.message ||
+          lessonResult.error?.message
+        )
+      )
+    );
     return;
   }
 
-  area.replaceChildren(el('h3', '', 'دروس دوراتي'));
+  area.replaceChildren(
+    el('h3', '', 'دروس دوراتي')
+  );
+
   for (const course of courseResult.data || []) {
     const group = el('div', 'editorCourse');
-    group.append(el('h4', '', course.title));
-    const lessons = (lessonResult.data || []).filter(l => l.course_id === course.id);
+
+    group.append(
+      el('h4', '', course.title)
+    );
+
+    const lessons = (
+      lessonResult.data || []
+    ).filter(
+      l => l.course_id === course.id
+    );
+
     if (!lessons.length) {
-      group.append(el('p', 'muted', 'لم تُضف دروس لهذه الدورة بعد.'));
+      group.append(
+        el(
+          'p',
+          'muted',
+          'لم تُضف دروس لهذه الدورة بعد.'
+        )
+      );
     }
+
     for (const lesson of lessons) {
-      const row = el('div', 'catalogLesson');
-      row.append(el('strong', '', lesson.title));
-      if (lesson.description) row.append(el('p', 'muted', lesson.description));
-      if (lesson.content_text) row.append(el('p', '', lesson.content_text));
-      const url = validHttps(lesson.content_url);
-      if (url) {
-        const a = el('a', '', lesson.content_type === 'video' ? 'مشاهدة الفيديو' : 'فتح ملف الدرس');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
-        row.append(a);
+      const row = el(
+        'div',
+        'catalogLesson'
+      );
+
+      row.append(
+        el('strong', '', lesson.title)
+      );
+
+      if (lesson.description) {
+        row.append(
+          el(
+            'p',
+            'muted',
+            lesson.description
+          )
+        );
       }
+
+      if (lesson.content_text) {
+        row.append(
+          el(
+            'p',
+            '',
+            lesson.content_text
+          )
+        );
+      }
+
+      if (lesson.content_url) {
+        appendLessonMedia(row, lesson);
+      }
+
       group.append(row);
     }
+
     area.append(group);
   }
 }
 
 function scheduleStudentLessons() {
-  if (window.location.hash !== '#students') return;
-  // students.js may create its panel after app.js has initialized.
-  if (document.getElementById('studentPanel')) {
+  if (
+    window.location.hash !== '#students'
+  ) return;
+
+  // students.js may create its panel
+  // after app.js has initialized.
+
+  if (
+    document.getElementById('studentPanel')
+  ) {
     renderStudentLessons();
   } else {
     window.setTimeout(() => {
-      if (document.getElementById('studentPanel')) renderStudentLessons();
+      if (
+        document.getElementById('studentPanel')
+      ) {
+        renderStudentLessons();
+      }
     }, 350);
   }
 }
 
-window.addEventListener('hashchange', scheduleStudentLessons);
-window.addEventListener('DOMContentLoaded', scheduleStudentLessons);
+window.addEventListener(
+  'hashchange',
+  scheduleStudentLessons
+);
+
+window.addEventListener(
+  'DOMContentLoaded',
+  scheduleStudentLessons
+);
+
 if (db) {
   db.auth.onAuthStateChange(() => {
-    window.setTimeout(scheduleStudentLessons, 0);
+    window.setTimeout(
+      scheduleStudentLessons,
+      0
+    );
   });
 }
 
