@@ -1,4 +1,3 @@
-// Paste only the PUBLIC project URL and PUBLISHABLE (anon) key here.
-// Never put a service_role or secret key in a GitHub Pages repository.
-window.JORDAN_SUPABASE_URL = '';
-window.JORDAN_SUPABASE_ANON_KEY = '';
+// Public browser configuration only. NEVER put a secret/service_role key here.
+window.JORDAN_SUPABASE_URL = 'https://itfvjpyulruoabirvadl.supabase.co';
+window.JORDAN_SUPABASE_ANON_KEY = sb_publishable_NHGOMB-r0b6m9DI1yzG95w_fSiAlED_;
